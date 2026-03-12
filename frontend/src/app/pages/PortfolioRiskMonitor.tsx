@@ -1,4 +1,5 @@
-import { PieChart, TrendingUp, AlertTriangle, Building2, DollarSign } from "lucide-react";
+import { PieChart, TrendingUp, AlertTriangle, Building2, DollarSign, Menu } from "lucide-react";
+import { useOutletContext } from "react-router";
 import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 const riskDistribution = [
@@ -28,6 +29,7 @@ const portfolioStats = [
 ];
 
 export function PortfolioRiskMonitor() {
+  const { setSidebarOpen } = useOutletContext<{ setSidebarOpen: (open: boolean) => void }>();
   const getRiskBadgeColor = (level: string) => {
     switch (level) {
       case 'Low': return 'bg-emerald-100 text-emerald-700';
@@ -44,15 +46,24 @@ export function PortfolioRiskMonitor() {
   };
 
   return (
-    <div className="p-6 md:p-8 bg-[#F8FAFC] min-h-screen">
-      {/* Header */}
-      <div className="mb-8">
+    <div className="bg-[#F8FAFC] min-h-screen pb-8">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-50 bg-[#F8FAFC]/80 backdrop-blur-md -mx-4 px-4 py-4 sm:-mx-8 sm:px-8 sm:py-6 mb-6 sm:mb-8 border-b border-slate-200">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-12 h-12 bg-gradient-to-br from-[#2563EB] to-[#06B6D4] rounded-xl flex items-center justify-center shadow-lg">
             <PieChart className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-[28px] font-bold text-[#1E293B]">Portfolio Risk Monitor</h1>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-1.5 hover:bg-white rounded-lg transition-colors border border-slate-200"
+                aria-label="Toggle Sidebar"
+              >
+                <Menu className="w-5 h-5 text-slate-600" />
+              </button>
+              <h1 className="text-[28px] font-bold text-[#1E293B]">Portfolio Risk Monitor</h1>
+            </div>
             <p className="text-sm text-[#64748B]">Real-time portfolio risk analysis and monitoring</p>
           </div>
         </div>

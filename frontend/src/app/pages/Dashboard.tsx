@@ -1,4 +1,4 @@
-import { Link } from "react-router";
+import { Link, useOutletContext } from "react-router";
 import {
   FileText,
   AlertTriangle,
@@ -15,7 +15,8 @@ import {
   Brain,
   Activity,
   Shield,
-  Zap
+  Zap,
+  Menu
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Area, AreaChart } from 'recharts';
 import { useState, useEffect } from 'react';
@@ -81,6 +82,7 @@ const aiSteps = [
 ];
 
 export function Dashboard() {
+  const { setSidebarOpen } = useOutletContext<{ setSidebarOpen: (open: boolean) => void }>();
   const [currentAIStep, setCurrentAIStep] = useState(0);
   const [creditScore, setCreditScore] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
@@ -204,46 +206,110 @@ export function Dashboard() {
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       {/* Top Navigation Bar */}
-      <div className="bg-white shadow-sm border-b border-[#E2E8F0] sticky top-0 z-50">
-        <div className="flex items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-4 flex-1">
-            <h1 className="text-[28px] font-bold text-[#1E293B]">
-              AI Credit Dashboard
-            </h1>
-            <div className="relative flex-1 max-w-md">
+      <div className="bg-white/80 backdrop-blur-md shadow-sm border-b border-[#E2E8F0] sticky top-0 z-50 -mx-4 lg:-mx-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between px-4 lg:px-8 py-3 md:py-4 gap-4">
+          <div className="flex items-center justify-between md:justify-start gap-4 flex-1 w-full">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
+                aria-label="Toggle Sidebar"
+              >
+                <Menu className="w-5 h-5 text-slate-600" />
+              </button>
+              <h1 className="text-xl sm:text-[28px] font-bold text-[#1E293B] whitespace-nowrap">
+                AI Credit Dashboard
+              </h1>
+            </div>
+            <div className="relative flex-1 max-w-md hidden sm:block">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#64748B]" />
               <input
                 type="text"
-                placeholder="Search companies, applications..."
+                placeholder="Search companies..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-[#E2E8F0] rounded-xl focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-all"
+                className="w-full pl-10 pr-4 py-2 border border-[#E2E8F0] rounded-xl focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-all text-sm"
               />
             </div>
+            {/* Mobile Search Button or Toggle could go here if needed, but for now we prioritize the header layout */}
           </div>
-          <div className="flex items-center gap-4">
-            <button className="relative p-2 hover:bg-[#F8FAFC] rounded-lg transition-colors">
-              <Bell className="w-5 h-5 text-[#64748B]" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-            </button>
-            <div className="flex items-center gap-3 pl-4 border-l border-[#E2E8F0]">
-              <div className="text-right">
-                <p className="text-sm font-semibold text-[#1E293B]">Credit Manager</p>
-                <p className="text-xs text-[#64748B]">manager@bank.com</p>
-              </div>
-              <div className="w-10 h-10 bg-gradient-to-br from-[#2563EB] to-[#06B6D4] rounded-full flex items-center justify-center shadow-md">
-                <User className="w-5 h-5 text-white" />
+          <div className="flex items-center justify-between md:justify-end gap-3 sm:gap-4 w-full md:w-auto">
+            <div className="relative sm:hidden flex-1 mr-2">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748B]" />
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-3 py-1.5 border border-[#E2E8F0] rounded-lg text-xs"
+              />
+            </div>
+            <div className="flex items-center gap-2 sm:gap-4">
+              <button className="relative p-2 hover:bg-[#F8FAFC] rounded-lg transition-colors">
+                <Bell className="w-5 h-5 text-[#64748B]" />
+                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+              </button>
+              <div className="flex items-center gap-2 sm:gap-3 sm:pl-4 sm:border-l sm:border-[#E2E8F0]">
+                <div className="text-right hidden xs:block">
+                  <p className="text-[10px] sm:text-sm font-semibold text-[#1E293B] truncate max-w-[80px] sm:max-w-none">Credit Manager</p>
+                  <p className="text-[8px] sm:text-xs text-[#64748B] truncate max-w-[80px] sm:max-w-none">manager@bank.com</p>
+                </div>
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#2563EB] to-[#06B6D4] rounded-full flex items-center justify-center shadow-md flex-shrink-0">
+                  <User className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
+
       {/* Main Content */}
       <div className="p-6">
-        <div className="fixed inset-0 overflow-hidden pointer-events-none opacity-20 z-0">
-          <div className="absolute top-20 right-20 w-96 h-96 bg-blue-300 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-20 left-20 w-96 h-96 bg-emerald-300 rounded-full blur-3xl"></div>
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <motion.div 
+            animate={{ 
+              x: [0, 50, 0], 
+              y: [0, 30, 0],
+              scale: [1, 1.1, 1],
+              rotate: [0, 5, 0]
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="absolute top-20 right-20 w-96 h-96 bg-blue-400/10 rounded-full blur-[120px]"
+          />
+          <motion.div 
+            animate={{ 
+              x: [0, -40, 0], 
+              y: [0, -20, 0],
+              scale: [1, 1.05, 1],
+              rotate: [0, -3, 0]
+            }}
+            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+            className="absolute bottom-20 left-20 w-[500px] h-[500px] bg-emerald-300/10 rounded-full blur-[140px]"
+          />
+          
+          {/* Subtle Particles */}
+          {[...Array(15)].map((_, i) => (
+            <motion.div
+              key={`particle-${i}`}
+              initial={{ 
+                x: Math.random() * 1000, 
+                y: Math.random() * 1000, 
+                opacity: 0 
+              }}
+              animate={{ 
+                y: [null, Math.random() * -200],
+                opacity: [0, 0.4, 0]
+              }}
+              transition={{ 
+                duration: 10 + Math.random() * 20, 
+                repeat: Infinity, 
+                ease: "linear",
+                delay: Math.random() * 10
+              }}
+              className="absolute w-1 h-1 bg-blue-400/30 rounded-full"
+            />
+          ))}
         </div>
 
         <div className="relative z-10">
@@ -261,24 +327,38 @@ export function Dashboard() {
                 <motion.div
                   key={stat.label}
                   variants={fadeInUp}
-                  whileHover={{ y: -5, scale: 1.02 }}
-                  className="bg-white/80 backdrop-blur-md rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.04)] p-6 flex flex-col gap-2 transition-shadow hover:shadow-2xl hover:shadow-blue-500/10 group cursor-pointer border border-white/20"
+                  whileHover={{ 
+                    y: -8, 
+                    scale: 1.02,
+                    boxShadow: "0 25px 50px -12px rgba(59, 130, 246, 0.15)"
+                  }}
+                  className="bg-white/90 backdrop-blur-md rounded-[24px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 flex flex-col gap-3 transition-all duration-500 group cursor-pointer border border-white/40 overflow-hidden relative"
                 >
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  
                   <div className="flex items-center justify-between mb-2">
-                    <div className={`p-3 rounded-2xl bg-gradient-to-br ${stat.bgGradient} transition-transform group-hover:scale-110 group-hover:rotate-3 shadow-sm`}>
+                    <motion.div 
+                      whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+                      className={`p-4 rounded-2xl bg-gradient-to-br ${stat.bgGradient} transition-all duration-300 shadow-sm group-hover:shadow-lg group-hover:shadow-blue-500/10`}
+                    >
                       <Icon className="w-6 h-6 text-blue-600" />
-                    </div>
-                    <div className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${stat.trend === 'up' ? 'bg-emerald-100 text-emerald-700' :
-                      stat.trend === 'down' ? 'bg-red-100 text-red-700' :
-                        'bg-gray-100 text-gray-700'
+                    </motion.div>
+                    <div className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 ${stat.trend === 'up' ? 'bg-emerald-50 text-emerald-600' :
+                      stat.trend === 'down' ? 'bg-red-50 text-red-600' :
+                        'bg-slate-100 text-slate-500'
                       }`}>
+                      <motion.div 
+                        animate={stat.trend !== 'neutral' ? { scale: [1, 1.2, 1] } : {}}
+                        transition={{ repeat: Infinity, duration: 2 }}
+                        className={`w-1.5 h-1.5 rounded-full ${stat.trend === 'up' ? 'bg-emerald-500' : stat.trend === 'down' ? 'bg-red-500' : 'bg-slate-400'}`} 
+                      />
                       {stat.change}
                     </div>
                   </div>
-                  <div className="text-[32px] font-bold text-[#0A2540] mb-0.5 tracking-tight group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-cyan-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
+                  <div className="text-[36px] font-black text-[#0A2540] mb-0.5 tracking-tighter group-hover:text-blue-600 transition-colors duration-300">
                     {stat.value}
                   </div>
-                  <div className="text-xs text-[#64748B] font-semibold uppercase tracking-widest">{stat.label}</div>
+                  <div className="text-[10px] text-[#64748B] font-black uppercase tracking-[0.2em]">{stat.label}</div>
                 </motion.div>
               );
             })}
@@ -290,8 +370,9 @@ export function Dashboard() {
               variants={fadeInUp}
               initial="initial"
               whileInView="animate"
-              viewport={{ once: true }}
-              className="bg-white/80 backdrop-blur-md rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.04)] p-8 flex flex-col items-center justify-center hover:shadow-xl transition-shadow border border-white/20"
+              viewport={{ once: true, margin: "-100px" }}
+              whileHover={{ scale: 1.01, boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.05)" }}
+              className="bg-white/80 backdrop-blur-md rounded-[24px] shadow-[0_10px_40px_rgba(0,0,0,0.04)] p-8 flex flex-col items-center justify-center transition-all duration-500 border border-white/20"
             >
               <h3 className="text-[18px] font-bold text-[#1E293B] mb-6 uppercase tracking-wider">Credit Risk Score</h3>
               <div className="relative w-48 h-48">
@@ -345,8 +426,9 @@ export function Dashboard() {
               variants={fadeInUp}
               initial="initial"
               whileInView="animate"
-              viewport={{ once: true }}
-              className="lg:col-span-2 bg-gradient-to-br from-[#0A2540] to-[#1E3A5F] text-white rounded-[20px] p-8 shadow-2xl relative overflow-hidden"
+              viewport={{ once: true, margin: "-100px" }}
+              whileHover={{ scale: 1.01 }}
+              className="lg:col-span-2 bg-gradient-to-br from-[#0A2540] to-[#1E3A5F] text-white rounded-[24px] p-8 shadow-2xl relative overflow-hidden transition-all duration-500"
             >
               {/* Background accent */}
               <div className="absolute -right-20 -top-20 w-64 h-64 bg-blue-500/20 blur-[100px] rounded-full pointer-events-none" />
@@ -403,15 +485,20 @@ export function Dashboard() {
 
               <div className="mt-8 relative pt-2">
                 <div className="flex justify-between text-[10px] font-bold text-blue-200/60 uppercase tracking-widest mb-2">
-                  <span>Engine Load</span>
+                  <span>Engine Load • Neural Inference Processing</span>
                   <span>{Math.round(((currentAIStep + 1) / aiSteps.length) * 100)}%</span>
                 </div>
-                <div className="h-2 bg-white/10 rounded-full overflow-hidden border border-white/5">
+                <div className="h-2.5 bg-white/5 rounded-full overflow-hidden border border-white/5 relative">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${((currentAIStep + 1) / aiSteps.length) * 100}%` }}
-                    transition={{ duration: 1, ease: "easeOut" }}
-                    className="h-full bg-gradient-to-r from-blue-500 to-cyan-400 shadow-[0_0_15px_rgba(59,130,246,0.5)]"
+                    transition={{ duration: 1, ease: "circOut" }}
+                    className="h-full bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-500 relative z-10"
+                  />
+                  <motion.div 
+                    animate={{ x: ["-100%", "100%"] }}
+                    transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent z-20"
                   />
                 </div>
               </div>
@@ -424,8 +511,9 @@ export function Dashboard() {
               variants={scaleIn}
               initial="initial"
               whileInView="animate"
-              viewport={{ once: true }}
-              className="lg:col-span-2 bg-white/80 backdrop-blur-md rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.04)] p-6 hover:shadow-xl transition-shadow border border-white/20"
+              viewport={{ once: true, margin: "-100px" }}
+              whileHover={{ scale: 1.01 }}
+              className="lg:col-span-2 bg-white/80 backdrop-blur-md rounded-[24px] shadow-[0_10px_40px_rgba(0,0,0,0.04)] p-8 hover:shadow-2xl transition-all duration-500 border border-white/20"
             >
               <h3 className="text-[18px] font-bold text-[#1E293B] mb-6 flex items-center gap-2 uppercase tracking-wider">
                 <TrendingUp className="w-5 h-5 text-[#2563EB]" />
@@ -499,8 +587,8 @@ export function Dashboard() {
               variants={fadeInUp}
               initial="initial"
               whileInView="animate"
-              viewport={{ once: true }}
-              className="lg:col-span-2 bg-white/80 backdrop-blur-md rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.04)] hover:shadow-xl transition-shadow border border-white/20 overflow-hidden"
+              viewport={{ once: true, margin: "-100px" }}
+              className="lg:col-span-2 bg-white/80 backdrop-blur-md rounded-[24px] shadow-[0_10px_40px_rgba(0,0,0,0.04)] hover:shadow-2xl transition-all duration-500 border border-white/20 overflow-hidden"
             >
               <div className="p-6 border-b border-[#E2E8F0]/50 bg-gradient-to-r from-slate-50 to-white/50">
                 <div className="flex items-center justify-between">
@@ -511,15 +599,15 @@ export function Dashboard() {
                   </Link>
                 </div>
               </div>
-              <div className="overflow-x-auto">
+              <div className="responsive-table-container">
                 <table className="w-full">
                   <thead className="bg-[#F8FAFC]/50">
                     <tr>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-[#64748B] uppercase tracking-widest">Company</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-[#64748B] uppercase tracking-widest">Amount</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-[#64748B] uppercase tracking-widest">Status</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-[#64748B] uppercase tracking-widest">Risk Level</th>
-                      <th className="px-6 py-4 text-left text-[10px] font-bold text-[#64748B] uppercase tracking-widest">Actions</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-[#64748B] uppercase tracking-widest whitespace-nowrap">Company</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-[#64748B] uppercase tracking-widest whitespace-nowrap">Amount</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-[#64748B] uppercase tracking-widest whitespace-nowrap">Status</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-[#64748B] uppercase tracking-widest whitespace-nowrap">Risk Level</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-[#64748B] uppercase tracking-widest whitespace-nowrap">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#E2E8F0]/50">
@@ -531,9 +619,9 @@ export function Dashboard() {
                         transition={{ delay: idx * 0.1 }}
                         className="hover:bg-blue-50/30 transition-colors group cursor-pointer"
                       >
-                        <td className="px-6 py-5">
+                        <td className="px-6 py-5 whitespace-nowrap">
                           <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-gradient-to-br from-[#2563EB] to-[#06B6D4] rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-transform">
+                            <div className="w-12 h-12 bg-gradient-to-br from-[#2563EB] to-[#06B6D4] rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-transform flex-shrink-0">
                               <Building2 className="w-6 h-6 text-white" />
                             </div>
                             <div>
@@ -550,23 +638,23 @@ export function Dashboard() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-5">
+                        <td className="px-6 py-5 whitespace-nowrap">
                           <div className="flex items-center gap-1.5 font-bold text-[#1E293B] text-sm">
                             <DollarSign className="w-4 h-4 text-[#2563EB]" />
                             {app.amount}
                           </div>
                         </td>
-                        <td className="px-6 py-5">
+                        <td className="px-6 py-5 whitespace-nowrap">
                           <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm ${getStatusBadgeColor(app.status)}`}>
                             {app.status}
                           </span>
                         </td>
-                        <td className="px-6 py-5">
+                        <td className="px-6 py-5 whitespace-nowrap">
                           <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm ${getRiskBadgeColor(app.riskLevel)}`}>
                             {app.riskLevel} Risk
                           </span>
                         </td>
-                        <td className="px-6 py-5">
+                        <td className="px-6 py-5 whitespace-nowrap">
                           <Link to={`/app/risk-intelligence/${app.id}`} className="p-2 bg-slate-100 rounded-lg text-[#2563EB] hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center w-max shadow-sm">
                             <ArrowRight className="w-4 h-4" />
                           </Link>
@@ -576,6 +664,7 @@ export function Dashboard() {
                   </tbody>
                 </table>
               </div>
+
             </motion.div>
 
             <EarlyWarningSignals alerts={recentAlerts} fraudFlags={analysisHistory.flatMap((h: any) => h.fraud_flags || [])} />
@@ -588,8 +677,9 @@ export function Dashboard() {
               variants={fadeInUp}
               initial="initial"
               whileInView="animate"
-              viewport={{ once: true }}
-              className="bg-white/80 backdrop-blur-md rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.04)] p-6 hover:shadow-xl transition-shadow border border-white/20"
+              viewport={{ once: true, margin: "-100px" }}
+              whileHover={{ scale: 1.01 }}
+              className="bg-white/80 backdrop-blur-md rounded-[24px] shadow-[0_10px_40px_rgba(0,0,0,0.04)] p-8 hover:shadow-2xl transition-all duration-500 border border-white/20"
             >
               <h3 className="text-[18px] font-bold text-[#1E293B] mb-8 flex items-center gap-2 uppercase tracking-wider">
                 <Activity className="w-5 h-5 text-[#2563EB]" />
@@ -604,18 +694,22 @@ export function Dashboard() {
                   ]).map((event: any, i: number) => (
                     <motion.div
                       key={i}
-                      initial={{ opacity: 0, x: -10 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.15 }}
+                      initial={{ opacity: 0, scale: 0.9, x: -10 }}
+                      whileInView={{ opacity: 1, scale: 1, x: 0 }}
+                      transition={{ delay: i * 0.15, duration: 0.5 }}
+                      viewport={{ once: true }}
                       className="relative pl-10 group"
                     >
-                      <div className="absolute left-0 w-6 h-6 rounded-full flex items-center justify-center shadow-lg z-10 bg-blue-500 shadow-blue-500/30">
+                      <div className="absolute left-0 w-6 h-6 rounded-full flex items-center justify-center shadow-lg z-10 bg-gradient-to-br from-blue-600 to-cyan-500 shadow-blue-500/30 group-hover:scale-125 transition-transform duration-300">
                         <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
                       </div>
-                      <div className="bg-slate-50/50 backdrop-blur-sm border border-[#E2E8F0]/50 rounded-2xl p-4 hover:bg-white transition-all hover:shadow-md group-hover:translate-x-1">
-                        <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-widest">LATEST ANALYSIS</span>
-                        <h4 className="font-bold text-[#1E293B] text-sm mt-0.5">{typeof event === 'string' ? event.split(':')[0] : event.title}</h4>
-                        <p className="text-[11px] text-[#64748B] font-medium leading-relaxed mt-1">{typeof event === 'string' ? event.split(':')[1] || 'Verified observation' : event.desc}</p>
+                      <div className="bg-slate-50/50 backdrop-blur-sm border border-[#E2E8F0]/50 rounded-[20px] p-5 hover:bg-white transition-all hover:shadow-xl group-hover:translate-x-1 border-l-4 border-l-blue-500/30 group-hover:border-l-blue-500">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded-md">LATEST ANALYSIS</span>
+                          <span className="text-[10px] font-bold text-slate-400">JUST NOW</span>
+                        </div>
+                        <h4 className="font-black text-[#1E293B] text-sm mt-1">{typeof event === 'string' ? event.split(':')[0] : event.title}</h4>
+                        <p className="text-[11px] text-[#64748B] font-medium leading-relaxed mt-1.5">{typeof event === 'string' ? event.split(':')[1] || 'Verified observation' : event.desc}</p>
                       </div>
                     </motion.div>
                   ))}
@@ -912,13 +1006,21 @@ export function Dashboard() {
                   <p className="font-bold text-[#1E293B] text-lg">No analyses yet</p>
                   <p className="text-sm text-[#64748B] mt-1">Upload documents and run an analysis — results will appear here automatically.</p>
                 </div>
-                <Link
-                  to="/app/upload"
-                  className="px-6 py-3 bg-gradient-to-r from-[#2563EB] to-[#06B6D4] text-white rounded-xl font-bold text-sm shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center gap-2"
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="flex flex-col items-center"
                 >
-                  <ArrowRight className="w-4 h-4" />
-                  Start First Analysis
-                </Link>
+                  <Link
+                    to="/app/upload"
+                    className="group relative px-8 py-4 bg-gradient-to-r from-[#2563EB] to-[#06B6D4] text-white rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:shadow-2xl hover:shadow-blue-500/20 active:scale-95 transition-all flex items-center gap-3 overflow-hidden"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    Initiate Premium Analysis
+                  </Link>
+                </motion.div>
               </div>
             ) : (
               <div className="overflow-x-auto">

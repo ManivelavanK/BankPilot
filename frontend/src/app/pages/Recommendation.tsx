@@ -1,7 +1,8 @@
-import { Link, useParams } from "react-router";
-import { CheckCircle, XCircle, AlertCircle, TrendingUp, DollarSign, Percent, Calendar, ArrowRight, FileText } from "lucide-react";
+import { Link, useParams, useOutletContext } from "react-router";
+import { CheckCircle, XCircle, AlertCircle, TrendingUp, DollarSign, Percent, Calendar, ArrowRight, FileText, Menu } from "lucide-react";
 
 export function Recommendation() {
+  const { setSidebarOpen } = useOutletContext<{ setSidebarOpen: (open: boolean) => void }>();
   const { applicationId } = useParams();
 
   const recommendation = {
@@ -49,23 +50,32 @@ export function Recommendation() {
   ];
 
   return (
-    <div className="p-8">
-      {/* Header */}
-      <div className="mb-8">
+    <div className="pb-8">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md -mx-4 px-4 py-4 sm:-mx-8 sm:px-8 sm:py-6 mb-6 sm:mb-8 border-b border-slate-200">
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
-          <Link to="/app" className="hover:text-blue-600">Dashboard</Link>
+          <Link to="/app" className="hover:text-blue-600 transition-colors">Dashboard</Link>
           <span>/</span>
-          <Link to={`/app/analysis/${applicationId}`} className="hover:text-blue-600">AI Analysis</Link>
+          <Link to={`/app/analysis/${applicationId}`} className="hover:text-blue-600 transition-colors">AI Analysis</Link>
           <span>/</span>
-          <Link to={`/app/research/${applicationId}`} className="hover:text-blue-600">Research</Link>
+          <Link to={`/app/research/${applicationId}`} className="hover:text-blue-600 transition-colors">Research</Link>
           <span>/</span>
-          <Link to={`/app/scoring/${applicationId}`} className="hover:text-blue-600">Credit Scoring</Link>
+          <Link to={`/app/scoring/${applicationId}`} className="hover:text-blue-600 transition-colors">Credit Scoring</Link>
           <span>/</span>
           <span className="text-gray-900">Recommendation</span>
         </div>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">AI Credit Recommendation</h1>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-1.5 hover:bg-white rounded-lg transition-colors border border-slate-200"
+                aria-label="Toggle Sidebar"
+              >
+                <Menu className="w-5 h-5 text-slate-600" />
+              </button>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">AI Credit Recommendation</h1>
+            </div>
             <p className="text-gray-600">TechVentures Pvt Ltd • Final Credit Decision</p>
           </div>
           <Link

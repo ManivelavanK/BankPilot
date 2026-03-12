@@ -1,7 +1,8 @@
-import { Link, useParams } from "react-router";
-import { Search, Newspaper, Users, Scale, TrendingUp, ExternalLink, AlertCircle, CheckCircle, ArrowRight } from "lucide-react";
+import { Link, useParams, useOutletContext } from "react-router";
+import { Search, Newspaper, Users, Scale, TrendingUp, ExternalLink, AlertCircle, CheckCircle, ArrowRight, Menu } from "lucide-react";
 
 export function ResearchAgent() {
+  const { setSidebarOpen } = useOutletContext<{ setSidebarOpen: (open: boolean) => void }>();
   const { applicationId } = useParams();
 
   const newsArticles = [
@@ -85,19 +86,28 @@ export function ResearchAgent() {
   ];
 
   return (
-    <div className="p-8">
-      {/* Header */}
-      <div className="mb-8">
+    <div className="pb-8">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md -mx-4 px-4 py-4 sm:-mx-8 sm:px-8 sm:py-6 mb-6 sm:mb-8 border-b border-slate-200">
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
-          <Link to="/app" className="hover:text-blue-600">Dashboard</Link>
+          <Link to="/app" className="hover:text-blue-600 transition-colors">Dashboard</Link>
           <span>/</span>
-          <Link to={`/app/analysis/${applicationId}`} className="hover:text-blue-600">AI Analysis</Link>
+          <Link to={`/app/analysis/${applicationId}`} className="hover:text-blue-600 transition-colors">AI Analysis</Link>
           <span>/</span>
           <span className="text-gray-900">Research Agent</span>
         </div>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Research Agent Insights</h1>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-1.5 hover:bg-white rounded-lg transition-colors border border-slate-200"
+                aria-label="Toggle Sidebar"
+              >
+                <Menu className="w-5 h-5 text-slate-600" />
+              </button>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Research Agent Insights</h1>
+            </div>
             <p className="text-gray-600">TechVentures Pvt Ltd • Comprehensive background research</p>
           </div>
           <Link

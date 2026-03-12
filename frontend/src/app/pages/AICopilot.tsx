@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Send, Bot, User, Sparkles } from 'lucide-react';
+import { Send, Bot, User, Sparkles, Menu } from 'lucide-react';
+import { useOutletContext } from 'react-router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { slideInLeft, slideInRight, fadeIn } from '../components/MotionUtils';
 
@@ -20,6 +21,7 @@ const aiResponses: Record<string, string> = {
 };
 
 export function AICopilot() {
+  const { setSidebarOpen } = useOutletContext<{ setSidebarOpen: (open: boolean) => void }>();
   const [messages, setMessages] = useState<Array<{ type: 'user' | 'ai'; text: string }>>([
     { type: 'ai', text: 'Hello! I\'m BankPilot AI Copilot. Ask me anything about credit decisions, risk analysis, or company evaluations.' }
   ]);
@@ -66,29 +68,34 @@ export function AICopilot() {
   };
 
   return (
-    <div className="bg-transparent">
+    <div className="bg-transparent pb-8">
       <div className="w-full">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <div className="flex items-center gap-4 mb-2">
+        <div className="sticky top-0 z-50 bg-slate-50/80 backdrop-blur-md -mx-4 px-4 py-4 sm:-mx-8 sm:px-8 sm:py-6 mb-8 border-b border-slate-200">
+          <div className="flex items-center gap-4">
             <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center overflow-hidden shadow-xl border border-white/20">
               <img src="/bankpilot-logo.jpg" alt="BankPilot Logo" className="w-full h-full object-cover" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-[#1E293B] tracking-tight">AI Copilot Intelligence</h1>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="lg:hidden p-1.5 hover:bg-white rounded-lg transition-colors border border-slate-200"
+                  aria-label="Toggle Sidebar"
+                >
+                  <Menu className="w-5 h-5 text-slate-600" />
+                </button>
+                <h1 className="text-3xl font-bold text-[#1E293B] tracking-tight whitespace-nowrap">AI Copilot Intelligence</h1>
+              </div>
               <p className="text-xs text-[#64748B] font-bold uppercase tracking-widest mt-1">Neural Credit Assistant • Active</p>
             </div>
           </div>
-        </motion.div>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[calc(100vh-220px)]">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 min-h-[500px] lg:h-[calc(100vh-220px)]">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="lg:col-span-2 bg-white/80 backdrop-blur-md rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.05)] flex flex-col h-full border border-white/40 overflow-hidden"
+            className="lg:col-span-2 bg-white/80 backdrop-blur-md rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.05)] flex flex-col h-[500px] lg:h-full border border-white/40 overflow-hidden"
           >
             <div className="p-6 border-b border-[#E2E8F0]/50 flex-shrink-0 bg-slate-50/50">
               <div className="flex items-center justify-between">
@@ -124,11 +131,11 @@ export function AICopilot() {
                             <Bot className="w-5 h-5" />
                           )}
                         </div>
-                        <div className={`rounded-2xl px-6 py-4 shadow-xl ${msg.type === 'user'
+                        <div className={`rounded-2xl px-4 py-3 sm:px-6 sm:py-4 shadow-xl ${msg.type === 'user'
                           ? 'bg-gradient-to-br from-[#3B82F6] to-[#2563EB]'
                           : 'bg-white text-[#334155] border border-[#E2E8F0]/50'
                           }`}>
-                          <p className={`text-sm leading-relaxed font-semibold ${msg.type === 'user' ? 'text-white' : ''}`}>{msg.text}</p>
+                          <p className={`text-[13px] sm:text-sm leading-relaxed font-semibold ${msg.type === 'user' ? 'text-white' : ''}`}>{msg.text}</p>
                         </div>
                       </div>
                     </motion.div>

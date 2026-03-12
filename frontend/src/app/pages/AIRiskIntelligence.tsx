@@ -1,10 +1,11 @@
-import { Brain, TrendingDown, Scale, Activity, BarChart3, AlertTriangle, CheckCircle, Shield, XCircle, FileText, Building2, DollarSign, Loader2 } from "lucide-react";
+import { Brain, TrendingDown, Scale, Activity, BarChart3, AlertTriangle, CheckCircle, Shield, XCircle, FileText, Building2, DollarSign, Loader2, Menu } from "lucide-react";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } from 'recharts';
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useNavigate, useParams, useOutletContext } from "react-router";
 import { analyzeCredit } from "../../api";
 
 export function AIRiskIntelligence() {
+  const { setSidebarOpen } = useOutletContext<{ setSidebarOpen: (open: boolean) => void }>();
   const navigate = useNavigate();
   const { sessionId } = useParams();
 
@@ -133,18 +134,27 @@ const getStatusColor = (status: string) => {
   const overallRiskScore = ra.total_score || Math.round(riskCategories.reduce((acc, cat) => acc + cat.score, 0) / riskCategories.length);
 
   return (
-    <div className="p-6 md:p-8 bg-gray-100 min-h-screen">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-            <Brain className="w-6 h-6 text-white" />
+    <div className="bg-gray-100 min-h-screen pb-8">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-50 bg-gray-100/80 backdrop-blur-md -mx-4 px-4 py-4 sm:-mx-8 sm:px-8 sm:py-6 mb-6 sm:mb-8 border-b border-gray-200">
+        <div className="flex items-center gap-3 mb-2 sm:mb-4">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+            <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">AI Risk Intelligence Center</h1>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-1.5 hover:bg-white rounded-lg transition-colors border border-slate-200"
+              aria-label="Toggle Sidebar"
+            >
+              <Menu className="w-5 h-5 text-slate-600" />
+            </button>
+            <h1 className="text-xl sm:text-3xl font-bold text-gray-900 leading-tight">AI Risk Intelligence Center</h1>
+          </div>
             <p className="text-gray-600">
               {analysisData ? (
-                <>Analyzing entity: <span className="text-blue-600 font-bold">{localStorage.getItem(`company_name_${localStorage.getItem('last_analysis_id')}`) || analysisData.risk_analysis.extracted_data.company_name}</span></>
+                <>Analyzing entity: <span className="text-blue-600 font-bold">{localStorage.getItem(`company_name_${localStorage.getItem('last_analysis_id')}`) || (analysisData && analysisData.risk_analysis && analysisData.risk_analysis.extracted_data && analysisData.risk_analysis.extracted_data.company_name)}</span></>
               ) : (
                 "Comprehensive multi-dimensional risk assessment powered by AI"
               )}
@@ -154,33 +164,34 @@ const getStatusColor = (status: string) => {
       </div>
 
       {/* Overall Risk Score */}
-      <div className="bg-gradient-to-r from-blue-600 to-emerald-600 rounded-3xl shadow-xl p-8 mb-8 text-white relative overflow-hidden group">
+      <div className="bg-gradient-to-r from-blue-600 to-emerald-600 rounded-3xl shadow-xl p-6 sm:p-8 mb-8 text-white relative overflow-hidden group">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
         <div className="relative z-10 flex flex-col items-center text-center">
           <div className="mb-2">
-            <p className="text-blue-100 text-xs font-bold uppercase tracking-[0.2em] mb-1">Aggregate AI Analysis</p>
-            <h2 className="text-4xl font-black text-white">Risk Score</h2>
+            <p className="text-blue-100 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] mb-1">Aggregate AI Analysis</p>
+            <h2 className="text-2xl sm:text-4xl font-black text-white">Risk Score</h2>
           </div>
           
-          <div className="flex items-center justify-center gap-8 my-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 my-4 sm:my-6">
             <div className="flex flex-col items-center">
-              <div className="text-7xl font-black mb-1 drop-shadow-lg">{analysisData ? analysisData.risk_analysis.total_score : overallRiskScore}</div>
+              <div className="text-6xl sm:text-7xl font-black mb-1 drop-shadow-lg">{analysisData ? analysisData.risk_analysis.total_score : overallRiskScore}</div>
               <div className="text-[10px] text-blue-100 font-bold uppercase tracking-widest">Points Out of 100</div>
             </div>
             
-            <div className="w-[1px] h-16 bg-white/20 hidden md:block" />
+            <div className="w-[1px] h-16 bg-white/20 hidden sm:block" />
+            <div className="w-full h-[1px] bg-white/10 sm:hidden max-w-[100px]" />
             
-            <div className="px-8 py-4 bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 hidden md:flex flex-col items-center">
+            <div className="px-6 py-3 sm:px-8 sm:py-4 bg-white/20 backdrop-blur-md rounded-2xl border border-white/30 flex flex-col items-center">
               <div className="text-[10px] text-blue-100 font-bold uppercase tracking-widest mb-1">Safe Credit Limit</div>
-              <div className="text-2xl font-black">{analysisData ? analysisData.recommendation.recommended_limit : "₹0.0 Cr"}</div>
+              <div className="text-xl sm:text-2xl font-black">{analysisData ? analysisData.recommendation.recommended_limit : "₹0.0 Cr"}</div>
             </div>
           </div>
 
-          <p className="max-w-md text-blue-100/80 text-sm font-medium leading-relaxed">
+          <p className="max-w-md text-blue-100/80 text-xs sm:text-sm font-medium leading-relaxed px-4">
             Our neural model has evaluated {riskCategories.length} risk dimensions with 98.4% data integrity correlation.
           </p>
 
-          <div className="mt-4 md:hidden px-6 py-2 bg-white/20 backdrop-blur-md rounded-xl border border-white/30">
+          <div className="mt-4 sm:hidden px-6 py-2 bg-white/20 backdrop-blur-md rounded-xl border border-white/30">
              <div className="text-[10px] text-blue-100 font-bold uppercase tracking-widest mb-0.5">Risk Level</div>
              <div className="text-lg font-black">{overallRiskScore >= 75 ? 'Low Risk' : overallRiskScore >= 60 ? 'Moderate' : 'High Risk'}</div>
           </div>
@@ -233,7 +244,7 @@ const getStatusColor = (status: string) => {
             <Shield className="w-5 h-5 text-blue-600" />
             Risk Distribution Radar
           </h3>
-          <ResponsiveContainer width="100%" height={350}>
+          <ResponsiveContainer width="100%" height={window.innerWidth < 640 ? 250 : 350}>
             <RadarChart data={radarData}>
               <PolarGrid stroke="#e5e7eb" />
               <PolarAngleAxis dataKey="category" tick={{ fill: '#6b7280', fontSize: 12 }} />

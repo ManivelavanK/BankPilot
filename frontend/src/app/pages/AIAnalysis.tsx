@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Link, useParams } from "react-router";
-import { Brain, AlertTriangle, CheckCircle, ArrowRight, Shield, Activity, Target, Zap, TrendingUp, BarChart3, Loader2, Building2, DollarSign, XCircle } from "lucide-react";
+import { Link, useParams, useOutletContext } from "react-router";
+import { Brain, AlertTriangle, CheckCircle, ArrowRight, Shield, Activity, Target, Zap, TrendingUp, BarChart3, Loader2, Building2, DollarSign, XCircle, Menu } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { motion } from "framer-motion";
 import { fadeInUp, staggerContainer } from '../components/MotionUtils';
@@ -18,6 +18,7 @@ import { analyzeCredit } from "../../api";
 // This will now be derived dynamically
 
 export function AIAnalysis() {
+  const { setSidebarOpen } = useOutletContext<{ setSidebarOpen: (open: boolean) => void }>();
   const { applicationId: paramId } = useParams();
   const applicationId = paramId || localStorage.getItem('last_analysis_id') || 'latest';
   
@@ -141,9 +142,8 @@ export function AIAnalysis() {
     { quarter: 'FY 24 Q2', revenue: rev * 0.95, profit: prof * 0.9 },
     { quarter: 'Current', revenue: rev, profit: prof },
   ];
-
   return (
-    <div className="p-8 bg-transparent relative">
+    <div className="bg-transparent relative pb-8">
       {/* Background Decor */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-10">
         <div className="absolute top-20 right-20 w-96 h-96 bg-emerald-200 rounded-full blur-3xl animate-pulse"></div>
@@ -151,95 +151,104 @@ export function AIAnalysis() {
       </div>
 
       <div className="relative z-10">
-        {/* Header Section */}
-        <div className="mb-8">
+        {/* Sticky Header Section */}
+        <div className="sticky top-0 z-50 bg-slate-50/80 backdrop-blur-md -mx-4 px-4 py-4 sm:-mx-8 sm:px-8 sm:py-6 mb-8 border-b border-slate-200">
           <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
             <Link to="/app" className="hover:text-emerald-600 transition-colors">Dashboard</Link>
             <span>/</span>
-            <span className="text-gray-900">{applicationId}</span>
+            <span className="text-gray-900 font-medium">{applicationId}</span>
           </div>
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-            <div>
-              <h1 className="text-4xl font-black text-slate-900 mb-4 tracking-tight">AI Risk Intelligence Center</h1>
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="px-4 py-2 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center gap-2.5">
-                   <div className="p-1.5 bg-emerald-50 rounded-lg">
-                      <Building2 className="w-5 h-5 text-emerald-600" />
-                   </div>
-                   <div>
-                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Company Name</p>
-                      <p className="font-black text-slate-900 leading-none">
-                        {localStorage.getItem(`company_name_${applicationId}`) || risk_analysis.extracted_data.company_name || 'Applicant Entity'}
-                      </p>
-                   </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-1.5 hover:bg-white rounded-lg transition-colors border border-slate-200"
+              aria-label="Toggle Sidebar"
+            >
+              <Menu className="w-5 h-5 text-slate-600" />
+            </button>
+            <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight">AI Risk Intelligence Center</h1>
+          </div>
+        </div>
+
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
+          <div className="flex-1 w-full">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="px-3 sm:px-4 py-2 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center gap-2.5">
+                <div className="p-1.5 bg-emerald-50 rounded-lg">
+                  <Building2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />
                 </div>
-                <div className="px-4 py-2 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center gap-2.5">
-                   <div className="p-1.5 bg-blue-50 rounded-lg">
-                      <DollarSign className="w-5 h-5 text-blue-600" />
-                   </div>
-                    <div>
-                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Requested Loan Amount</p>
-                       <p className="font-black text-slate-900 leading-none text-blue-700">₹{localStorage.getItem(`requested_loan_${applicationId}`) || loanAmount} Cr</p>
-                    </div>
-                 </div>
-                 <div className="px-4 py-2 bg-gradient-to-br from-emerald-50 to-white rounded-2xl shadow-md border border-emerald-200 flex items-center gap-2.5 animate-pulse">
-                    <div className="p-1.5 bg-emerald-500 rounded-lg shadow-lg">
-                       <Shield className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                       <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest leading-none mb-1">Suggested Safe Limit</p>
-                       <p className="font-black text-emerald-900 leading-none text-lg">{recommendation.recommended_limit}</p>
-                    </div>
-                 </div>
-              </div>
-              <div className="flex items-center gap-4 mt-6 p-4 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
-                <div className="flex flex-col flex-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Simulate Loan Sensitivity (₹ Cr):</label>
-                    {sliderLoading && (
-                      <span className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-black uppercase tracking-widest animate-pulse">
-                        <Loader2 className="w-3 h-3 animate-spin" />
-                        Recalculating...
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <input
-                      type="range" min="1" max="50" step="0.5"
-                      value={sliderValue}
-                      onChange={(e) => {
-                        // Real-time display update — no API call yet
-                        isSlidingRef.current = true;
-                        setSliderValue(parseFloat(e.target.value));
-                      }}
-                      onMouseUp={(e) => {
-                        // User released slider → commit and trigger API
-                        isSlidingRef.current = false;
-                        setCommittedLoanAmount(parseFloat((e.target as HTMLInputElement).value));
-                      }}
-                      onTouchEnd={(e) => {
-                        // Touch devices: commit on finger lift
-                        isSlidingRef.current = false;
-                        setCommittedLoanAmount(parseFloat((e.currentTarget as HTMLInputElement).value));
-                      }}
-                      className="w-48 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600 shadow-inner"
-                    />
-                    <span className="text-lg font-black text-emerald-700">₹ {sliderValue.toFixed(1)} Cr</span>
-                  </div>
-                  <p className="text-[9px] text-slate-400 font-semibold mt-1.5 uppercase tracking-wider">
-                    Release slider to run prediction
+                <div>
+                  <p className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Company Name</p>
+                  <p className="font-black text-slate-900 leading-none text-xs sm:text-base">
+                    {localStorage.getItem(`company_name_${applicationId}`) || (risk_analysis && risk_analysis.extracted_data && risk_analysis.extracted_data.company_name) || 'Applicant Entity'}
                   </p>
                 </div>
               </div>
+              <div className="px-3 sm:px-4 py-2 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center gap-2.5">
+                <div className="p-1.5 bg-blue-50 rounded-lg">
+                  <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                </div>
+                <div>
+                  <p className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">Requested Loan</p>
+                  <p className="font-black text-slate-900 leading-none text-xs sm:text-base text-blue-700">₹{localStorage.getItem(`requested_loan_${applicationId}`) || '8.5'} Cr</p>
+                </div>
+              </div>
+              <div className="px-3 sm:px-4 py-2 bg-gradient-to-br from-emerald-50 to-white rounded-2xl shadow-md border border-emerald-200 flex items-center gap-2.5">
+                <div className="p-1.5 bg-emerald-500 rounded-lg shadow-lg">
+                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                </div>
+                <div>
+                  <p className="text-[8px] sm:text-[10px] font-bold text-emerald-600 uppercase tracking-widest leading-none mb-1">Suggested Safe Limit</p>
+                  <p className="font-black text-emerald-900 leading-none text-sm sm:text-lg">{recommendation && recommendation.recommended_limit}</p>
+                </div>
+              </div>
             </div>
-            <Link
-              to={`/app/cam/${applicationId}`}
-              className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-blue-600 text-white rounded-lg font-semibold hover:from-emerald-700 hover:to-blue-700 transition-all shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:scale-105 flex items-center gap-2"
-            >
-              Generate CAM Report
-              <ArrowRight className="w-5 h-5" />
-            </Link>
+            
+            <div className="flex items-center gap-4 mt-6 p-4 bg-slate-50 rounded-2xl border border-dashed border-slate-300 w-full max-w-xl">
+              <div className="flex flex-col flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-widest truncate">Simulate Loan Sensitivity (₹ Cr):</label>
+                  {sliderLoading && (
+                    <span className="flex items-center gap-1.5 px-2 py-0.5 sm:px-2.5 sm:py-1 bg-emerald-100 text-emerald-700 rounded-full text-[8px] sm:text-[10px] font-black uppercase tracking-widest animate-pulse flex-shrink-0">
+                      <Loader2 className="w-2.5 h-2.5 sm:w-3 sm:h-3 animate-spin" />
+                      Recalculating...
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="range" min="1" max="50" step="0.5"
+                    value={sliderValue}
+                    onChange={(e) => {
+                      isSlidingRef.current = true;
+                      setSliderValue(parseFloat(e.target.value));
+                    }}
+                    onMouseUp={(e) => {
+                      isSlidingRef.current = false;
+                      setCommittedLoanAmount(parseFloat((e.target as HTMLInputElement).value));
+                    }}
+                    onTouchEnd={(e) => {
+                      isSlidingRef.current = false;
+                      setCommittedLoanAmount(parseFloat((e.currentTarget as HTMLInputElement).value));
+                    }}
+                    className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600 shadow-inner"
+                  />
+                  <span className="text-base sm:text-lg font-black text-emerald-700 whitespace-nowrap">₹ {sliderValue.toFixed(1)} Cr</span>
+                </div>
+                <p className="text-[8px] sm:text-[9px] text-slate-400 font-semibold mt-1.5 uppercase tracking-wider">
+                  Release slider to run prediction
+                </p>
+              </div>
+            </div>
           </div>
+          
+          <Link
+            to={`/app/cam/${applicationId}`}
+            className="w-full lg:w-auto px-6 py-3 bg-gradient-to-r from-emerald-600 to-blue-600 text-white rounded-xl font-semibold hover:from-emerald-700 hover:to-blue-700 transition-all shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:scale-105 flex items-center justify-center gap-2"
+          >
+            Generate CAM Report
+            <ArrowRight className="w-5 h-5" />
+          </Link>
         </div>
 
         {/* AI Notification Banner */}
@@ -255,8 +264,8 @@ export function AIAnalysis() {
             </div>
             <div className="flex-1">
               <h4 className="text-xl font-bold text-white mb-1 tracking-tight">Random Forest ML Core Active</h4>
-              <p className="text-blue-100/80 text-sm font-medium">
-                Optimized Classifier • Engine Accuracy: 94.2% • Neural Inference: 42ms • Data Integrity: 95%
+              <p className="text-blue-100 text-sm font-medium leading-relaxed max-w-2xl">
+                The AI engine is continuously analyzing {applicationId}'s financial health, credit history, and market position to provide high-confidence risk assessment.
               </p>
             </div>
           </div>
@@ -300,16 +309,17 @@ export function AIAnalysis() {
            </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 mb-8 items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8 mb-8 items-stretch">
           <div className="lg:col-span-3">
             <AIDecisionExplanation
               decision={approvalStatus as 'APPROVED' | 'REJECTED' | 'REVIEW'}
-              limit={recommendation.recommended_limit || `₹${loanAmount} Cr`}
+              limit={recommendation.recommended_limit || `₹${sliderValue} Cr`}
               interestRate={interestRate}
               rationales={reasons}
               confidence={`${(100 - risk_analysis.total_score * 0.1).toFixed(1)}%`}
             />
           </div>
+
           <div className="lg:col-span-1">
             <div className="bg-white rounded-3xl border border-gray-200 shadow-xl overflow-hidden h-full flex flex-col">
                 <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-slate-50 to-white">

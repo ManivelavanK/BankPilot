@@ -33,6 +33,8 @@ export function MainLayout() {
   useEffect(() => {
     const id = localStorage.getItem('last_analysis_id');
     if (id !== lastAnalysisId) setLastAnalysisId(id);
+    // Close sidebar on navigation for mobile
+    setSidebarOpen(false);
   }, [location.pathname]);
 
   const isActive = (path: string) => {
@@ -65,22 +67,14 @@ export function MainLayout() {
       <AnimatedBackground />
       <ScrollToTop />
 
-      {/* Mobile Menu Button */}
-      <button
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-slate-900 text-white rounded-lg shadow-lg"
-      >
-        {sidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-      </button>
-
-      {/* Overlay for mobile */}
+      {/* Overlay for mobile - only clickable area to close */}
       <AnimatePresence>
         {sidebarOpen && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="lg:hidden fixed inset-0 bg-black/50 z-30 backdrop-blur-sm"
+            className="lg:hidden fixed inset-0 bg-black/60 z-[60] backdrop-blur-[2px]"
             onClick={() => setSidebarOpen(false)}
           />
         )}
@@ -94,13 +88,20 @@ export function MainLayout() {
         className={`
           fixed top-0 left-0 h-screen w-64 
           bg-[#0A2540]/95 backdrop-blur-xl
-          text-white shadow-2xl z-40
+          text-white shadow-2xl z-[70]
           flex flex-col
           transition-transform duration-300 ease-in-out
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
           lg:translate-x-0
         `}
       >
+        {/* Mobile Close Button */}
+        <button
+          onClick={() => setSidebarOpen(false)}
+          className="lg:hidden absolute top-4 right-4 p-2 text-white/60 hover:text-white transition-colors"
+        >
+          <X className="w-6 h-6" />
+        </button>
         {/* Branding Section */}
         <div className="p-6 border-b border-[#1e3a5f]/50 flex-shrink-0">
           <div className="flex flex-col items-center gap-3">
@@ -189,10 +190,10 @@ export function MainLayout() {
       </motion.aside>
 
       {/* Main Content */}
-      <main id="main-content" className="flex-1 overflow-auto bg-transparent relative lg:ml-64">
+      <main id="main-content" className="flex-1 overflow-auto bg-transparent relative lg:ml-64 w-full">
         <PageTransition>
-          <div className="p-4 lg:p-8 max-w-7xl mx-auto">
-            <Outlet />
+          <div className="px-4 pb-4 lg:px-8 lg:pb-8 max-w-7xl mx-auto w-full">
+            <Outlet context={{ setSidebarOpen, sidebarOpen }} />
           </div>
         </PageTransition>
       </main>
