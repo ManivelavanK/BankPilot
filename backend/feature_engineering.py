@@ -45,11 +45,16 @@ class FeatureEngineer:
         
         return features
 
+    def get_feature_names(self):
+        """
+        Returns the list of feature names in the order expected by the model.
+        """
+        return ['revenue', 'profit_margin', 'debt_ratio', 'cash_flow', 'credit_score', 'collateral_value', 'gst_growth']
+
     def get_feature_vector(self, features):
         """
         Converts the features dictionary into a list/array for the ML model.
-        MUST match the training column order:
-        ['revenue', 'profit_margin', 'debt_ratio', 'cash_flow', 'credit_score', 'collateral_value', 'gst_growth']
+        MUST match the training column order.
         """
-        ordered_keys = ['revenue', 'profit_margin', 'debt_ratio', 'cash_flow', 'credit_score', 'collateral_value', 'gst_growth']
+        ordered_keys = self.get_feature_names()
         return [features[k] for k in ordered_keys]

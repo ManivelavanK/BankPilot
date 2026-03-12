@@ -1,0 +1,86 @@
+Redesign and enhance the existing fintech prototype UI for a corporate credit analysis platform.
+
+Rebrand the product name from "IntelliCredit" to "CredVista".
+
+Use the uploaded logo as the main brand logo in the top-left navigation bar.
+
+Design Theme:
+Modern fintech dashboard used by bank credit managers. Clean, professional, enterprise style similar to modern banking SaaS platforms.
+
+Color Palette:
+Primary: Deep Blue
+Secondary: Emerald Green
+Background: Light Gray / White
+Accent: Soft gradient highlights
+
+UI Improvements:
+
+1. Branding
+- Replace all instances of "IntelliCredit" with "CredVista"
+- Add the uploaded CredVista logo in the sidebar header
+- Add tagline below logo: "Corporate Credit Intelligence Platform"
+
+2. Visual Enhancements
+Add financial-themed visuals:
+- subtle background illustrations of financial graphs
+- banking analytics charts
+- corporate building silhouettes
+- data network patterns
+
+3. Dashboard Enhancements
+Improve the dashboard with:
+- credit risk score widgets
+- loan application statistics
+- financial trend charts
+- risk alert cards
+- recent analysis activity panel
+
+4. Application Upload Screen
+Improve the document upload area:
+- add financial document icons
+- add animated upload progress indicator
+- display uploaded document cards
+- show AI parsing status
+
+5. AI Insights Screen
+Add visual analytics panels:
+- revenue trend charts
+- risk score gauges
+- financial ratio cards
+- AI detected risk flags
+
+6. Checklist Panel
+Make checklist visually clearer:
+- green checkmarks when documents uploaded
+- subtle animation when item becomes verified
+- icons for GST, bank statement, annual report, KYC, collateral
+
+7. Animations (Micro Interactions)
+Add subtle UI animations:
+- smooth hover effects on buttons
+- animated loading indicators for AI analysis
+- sliding transitions between screens
+- progress animation during document analysis
+
+8. Financial Data Visualization
+Add modern charts:
+- risk score gauge
+- financial performance line chart
+- loan risk heatmap
+- credit rating indicator
+
+9. CAM Report Screen
+Create a professional report preview layout:
+- structured credit appraisal memo
+- sections for financial analysis, risk summary, recommendation
+- export buttons (PDF / Word)
+
+Design Style:
+Minimal, modern fintech SaaS interface
+Rounded cards
+Soft shadows
+Clean typography
+Professional enterprise look suitable for banking systems
+
+Goal:
+Make the prototype look like a real AI-powered corporate credit intelligence platform used by banks.

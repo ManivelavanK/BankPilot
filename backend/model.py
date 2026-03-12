@@ -16,7 +16,7 @@ class CreditModel:
         else:
             print(f"Model file not found at {self.model_path}")
 
-    def predict(self, feature_vector):
+    def predict(self, feature_vector, feature_names=None):
         """
         Runs prediction on the feature vector.
         0 = Approve, 1 = Review, 2 = Reject
@@ -26,16 +26,16 @@ class CreditModel:
             return 1, 0.5 # Default to review with medium risk if model not found
         
         # Prepare for prediction (X must be 2D array)
-        X = np.array([feature_vector])
+        if feature_names:
+            import pandas as pd
+            X = pd.DataFrame([feature_vector], columns=feature_names)
+        else:
+            X = np.array([feature_vector])
         
         # Predict class
         decision_class = self.model.predict(X)[0]
         
         # Risk score calculation
-        # Predict probabilities (if available in model)
-        # Class 0: Approve (Low risk)
-        # Class 1: Review (Medium risk)
-        # Class 2: Reject (High risk)
         try:
             probs = self.model.predict_proba(X)[0]
             # Risk score as high probability of reject (class 2)
@@ -51,38 +51,41 @@ class CreditModel:
     def explain_decision(self, features):
         """
         Provides reasons for the decision based on feature thresholds.
+        Tailored for Indian Context (CIBIL, GST, etc.)
         """
         reasons = []
         
         if features['debt_ratio'] > 0.8:
-            reasons.append("High financial leverage (Debt Ratio > 0.8)")
+            reasons.append("High financial leverage identified (Debt-to-Asset Ratio > 0.8)")
         elif features['debt_ratio'] > 0.5:
-            reasons.append("Moderate debt levels")
+            reasons.append("Moderate debt levels observed")
 
         if features['profit_margin'] < 0.05:
-            reasons.append("Low profitability margin (< 5%)")
+            reasons.append("Low profitability margin identified (< 5%)")
 
-        if features['credit_score'] < 600:
-            reasons.append("Low director credit score (< 600)")
-        elif features['credit_score'] < 700:
-            reasons.append("Moderate credit score")
+        if features['credit_score'] < 650:
+            reasons.append("Low Bureau (CIBIL-like) credit score identified")
+        elif features['credit_score'] < 750:
+            reasons.append("Satisfactory credit score, but scope for improvement")
             
-        if features['cash_flow'] < 10: # Scaled
-            reasons.append("Weak cash flow")
+        if features['cash_flow'] < 10:
+            reasons.append("Weak cash flow stability in recent cycles")
 
         if features['gst_growth'] < 0:
-            reasons.append("Negative GST growth trend")
+            reasons.append("Negative GST turnover trend identified")
+        elif features['gst_growth'] > 0.15:
+            reasons.append("Strong GST turnover growth verified")
             
         if not reasons:
-            reasons.append("Strong overall financial health")
+            reasons.append("Exceptional overall financial health and compliance profile")
 
         return reasons
 
     def get_decision_label(self, class_id):
         # 0 = Approve, 1 = Review, 2 = Reject
         mapping = {
-            0: "APPROVE",
-            1: "REVIEW REQUIRED",
-            2: "HIGH RISK"
+            0: "APPROVED (LOW RISK)",
+            1: "REVIEW REQUIRED (MODERATE RISK)",
+            2: "HIGH RISK / REJECTED"
         }
         return mapping.get(class_id, "REVIEW REQUIRED")
