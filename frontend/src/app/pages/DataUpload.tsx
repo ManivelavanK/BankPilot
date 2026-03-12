@@ -122,9 +122,10 @@ export function DataUpload() {
       
       // Persist user-entered data for later retrieval
       localStorage.setItem(`company_name_${response.session_id}`, companyName);
-      localStorage.setItem(`requested_loan_${response.session_id}`, loanAmount);
+      localStorage.setItem(`requested_loan_${response.session_id}`, loanAmount.toString());
+      localStorage.setItem('last_analysis_id', response.session_id);
       
-      navigate(`/app/risk-intelligence/${response.session_id}`);
+      navigate("/app/risk-intelligence");
     } catch (err) {
       console.error(err);
       setError("Failed to upload and process documents. Please check if the backend is running.");
@@ -341,10 +342,10 @@ export function DataUpload() {
                 {isProcessing ? (
                   <span className="flex items-center justify-center gap-2">
                     <div className="w-5 h-5 border-3 border-white border-t-transparent rounded-full animate-spin" />
-                    Starting AI Analysis...
+                    Analyzing Risk Intelligence...
                   </span>
                 ) : (
-                  'Start AI Analysis'
+                  'Start Risk Intelligence Analysis'
                 )}
               </button>
               <p className="text-xs text-slate-500 text-center mt-3">

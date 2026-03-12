@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useParams } from "react-router";
 import { Brain, AlertTriangle, CheckCircle, ArrowRight, Shield, Activity, Target, Zap, TrendingUp, BarChart3, Loader2, Building2, DollarSign, XCircle } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
@@ -18,38 +18,62 @@ import { analyzeCredit } from "../../api";
 // This will now be derived dynamically
 
 export function AIAnalysis() {
-  const { applicationId } = useParams();
+  const { applicationId: paramId } = useParams();
+  const applicationId = paramId || localStorage.getItem('last_analysis_id') || 'latest';
+  
   const [loading, setLoading] = useState(() => {
     const cached = localStorage.getItem(`analysis_${applicationId}`);
-    return !cached; // If no cache, we must load
+    return !cached;
   });
   const [error, setError] = useState<string | null>(null);
   const [analysisData, setAnalysisData] = useState<any>(() => {
-    // Try to load initial analysis from cache
     const cached = localStorage.getItem(`analysis_${applicationId}`);
     return cached ? JSON.parse(cached) : null;
   });
-  const [loanAmount, setLoanAmount] = useState(() => {
-    // Try to load initial loan amount from cache
+  // sliderValue: updates in real-time on every slider tick (display only)
+  // committedLoanAmount: only updates on mouse/touch release → triggers API call
+  const [sliderValue, setSliderValue] = useState(() => {
     const cached = localStorage.getItem(`loan_amount_${applicationId}`);
     return cached ? parseFloat(cached) : 8.5;
   });
+  const [committedLoanAmount, setCommittedLoanAmount] = useState(() => {
+    const cached = localStorage.getItem(`loan_amount_${applicationId}`);
+    return cached ? parseFloat(cached) : 8.5;
+  });
+  // Tracks whether the slider is currently being dragged
+  const isSlidingRef = useRef(false);
+  // Separate loading state for slider re-analysis (shows inline badge, not full screen)
+  const [sliderLoading, setSliderLoading] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
-      if (!applicationId) return;
+      if (!applicationId || applicationId === 'latest') {
+        const lastId = localStorage.getItem('last_analysis_id');
+        if (!lastId && applicationId === 'latest') {
+            setError("No analysis found. Please upload documents first.");
+            setLoading(false);
+            return;
+        }
+      }
+
+      // First-ever load → use full-screen loader
+      // Subsequent slider commits → use inline badge only
+      const isFirstLoad = !analysisData;
+      if (isFirstLoad) {
+        setLoading(true);
+      } else {
+        setSliderLoading(true);
+      }
+
       try {
-        // Only show loading if we don't have cached data
-        if (!analysisData) setLoading(true);
-        
-        const data = await analyzeCredit(applicationId, loanAmount);
+        const data = await analyzeCredit(applicationId, committedLoanAmount);
         setAnalysisData(data);
-        
+
         // Cache the latest result
         localStorage.setItem(`analysis_${applicationId}`, JSON.stringify(data));
-        localStorage.setItem(`loan_amount_${applicationId}`, loanAmount.toString());
+        localStorage.setItem(`loan_amount_${applicationId}`, committedLoanAmount.toString());
         localStorage.setItem('last_analysis_id', applicationId);
-        
+
         setError(null);
       } catch (err) {
         console.error(err);
@@ -58,10 +82,12 @@ export function AIAnalysis() {
         }
       } finally {
         setLoading(false);
+        setSliderLoading(false);
       }
     }
     fetchData();
-  }, [applicationId, loanAmount]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [applicationId, committedLoanAmount]);
 
   if (loading) {
     return (
@@ -167,17 +193,42 @@ export function AIAnalysis() {
                  </div>
               </div>
               <div className="flex items-center gap-4 mt-6 p-4 bg-slate-50 rounded-2xl border border-dashed border-slate-300">
-                <div className="flex flex-col">
-                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Simulate Loan Sensitivity (₹ Cr):</label>
+                <div className="flex flex-col flex-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Simulate Loan Sensitivity (₹ Cr):</label>
+                    {sliderLoading && (
+                      <span className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-black uppercase tracking-widest animate-pulse">
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        Recalculating...
+                      </span>
+                    )}
+                  </div>
                   <div className="flex items-center gap-4">
-                    <input 
-                      type="range" min="1" max="50" step="0.5" 
-                      value={loanAmount} 
-                      onChange={(e) => setLoanAmount(parseFloat(e.target.value))}
+                    <input
+                      type="range" min="1" max="50" step="0.5"
+                      value={sliderValue}
+                      onChange={(e) => {
+                        // Real-time display update — no API call yet
+                        isSlidingRef.current = true;
+                        setSliderValue(parseFloat(e.target.value));
+                      }}
+                      onMouseUp={(e) => {
+                        // User released slider → commit and trigger API
+                        isSlidingRef.current = false;
+                        setCommittedLoanAmount(parseFloat((e.target as HTMLInputElement).value));
+                      }}
+                      onTouchEnd={(e) => {
+                        // Touch devices: commit on finger lift
+                        isSlidingRef.current = false;
+                        setCommittedLoanAmount(parseFloat((e.currentTarget as HTMLInputElement).value));
+                      }}
                       className="w-48 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600 shadow-inner"
                     />
-                    <span className="text-lg font-black text-emerald-700">₹ {loanAmount.toFixed(1)} Cr</span>
+                    <span className="text-lg font-black text-emerald-700">₹ {sliderValue.toFixed(1)} Cr</span>
                   </div>
+                  <p className="text-[9px] text-slate-400 font-semibold mt-1.5 uppercase tracking-wider">
+                    Release slider to run prediction
+                  </p>
                 </div>
               </div>
             </div>

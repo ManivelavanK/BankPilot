@@ -138,7 +138,7 @@ class RiskAnalyzer:
     
     def analyze_collateral(self, data):
         """Collateral - Security for the loan (now calculates risk points)"""
-        risk_points = 0
+        risk_points: int = 0
         
         positive_flags = data.get('positive_flags', [])
         collateral_keywords = ['collateral', 'security', 'guarantee', 'asset']
@@ -209,36 +209,48 @@ class RiskAnalyzer:
             return (profit / revenue) * 100
         return None
     
-    def generate_recommendation(self, risk_analysis, extracted_data):
-        """Generate loan recommendation based on risk score"""
+    def generate_recommendation(self, risk_analysis, extracted_data, requested_amount=None):
+        """Generate loan recommendation based on risk score and requested amount"""
         score = risk_analysis['total_score']
         revenue = extracted_data.get('revenue', 0)
+        revenue_cr = revenue / 10000000  # Convert to Cr
         
         # More realistic decision logic
         if score >= 75:
-            decision = "APPROVE"
-            loan_limit = revenue * 0.20 if revenue > 0 else 2000000  # 20% of revenue or 20L default
+            base_decision = "APPROVE"
+            loan_limit_cr = revenue_cr * 0.25 if revenue > 0 else 5.0  # 25% of revenue or 5Cr default
             interest_rate = "9.5%" if score >= 85 else "10.2%"
-            explanation = "Strong financial profile with low risk indicators"
+            explanation = "Strong financial profile with low risk indicators."
         elif score >= 60:
-            decision = "APPROVE"
-            loan_limit = revenue * 0.15 if revenue > 0 else 1500000  # 15% of revenue or 15L default
+            base_decision = "APPROVE"
+            loan_limit_cr = revenue_cr * 0.15 if revenue > 0 else 2.5  # 15% of revenue or 2.5Cr default
             interest_rate = "11.5%"
-            explanation = "Acceptable risk profile with some monitoring required"
+            explanation = "Acceptable risk profile with some monitoring required."
         elif score >= 45:
-            decision = "REVIEW"
-            loan_limit = revenue * 0.10 if revenue > 0 else 1000000  # 10% of revenue or 10L default
+            base_decision = "REVIEW"
+            loan_limit_cr = revenue_cr * 0.10 if revenue > 0 else 1.0  # 10% of revenue or 1Cr default
             interest_rate = "13.0%"
-            explanation = "Moderate risk - requires enhanced due diligence and conditions"
+            explanation = "Moderate risk - requires enhanced due diligence and additional collateral."
         else:
-            decision = "REJECT"
-            loan_limit = 0
+            base_decision = "REJECT"
+            loan_limit_cr = 0
             interest_rate = "N/A"
             explanation = f"High risk profile. Key concerns: {', '.join(risk_analysis['risk_factors'][:3])}"
-        
+
+        decision = base_decision
+        if requested_amount is not None:
+            # Shift decision based on requested amount vs safe limit
+            if decision != "REJECT":
+                if requested_amount > loan_limit_cr * 1.5:
+                    decision = "REJECT"
+                    explanation = f"Requested amount (₹{requested_amount} Cr) significantly exceeds the calculated safe limit (₹{loan_limit_cr:.1f} Cr)."
+                elif requested_amount > loan_limit_cr:
+                    decision = "REVIEW"
+                    explanation = f"Requested amount (₹{requested_amount} Cr) exceeds the standard safe limit (₹{loan_limit_cr:.1f} Cr). Enhanced scrutiny required."
+
         return {
             'decision': decision,
-            'recommended_limit': f"₹{loan_limit:,.0f}",
+            'recommended_limit': f"₹{loan_limit_cr:,.1f} Cr",
             'interest_rate': interest_rate,
             'risk_score': score,
             'explanation': explanation,

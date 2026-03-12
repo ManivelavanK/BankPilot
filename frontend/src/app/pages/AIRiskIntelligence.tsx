@@ -2,6 +2,7 @@ import { Brain, TrendingDown, Scale, Activity, BarChart3, AlertTriangle, CheckCi
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } from 'recharts';
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router";
+import { analyzeCredit } from "../../api";
 
 export function AIRiskIntelligence() {
   const navigate = useNavigate();
@@ -11,15 +12,15 @@ export function AIRiskIntelligence() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    import("../../api").then(({ analyzeCredit }) => {
-      const targetId = sessionId || localStorage.getItem('last_analysis_id') || 'latest';
-      analyzeCredit(targetId).then(data => {
-        setAnalysisData(data);
-        setLoading(false);
-      }).catch(err => {
-        console.error(err);
-        setLoading(false);
-      });
+    const targetId = sessionId || localStorage.getItem('last_analysis_id') || 'latest';
+    console.log(`Starting analysis for: ${targetId}`);
+    
+    analyzeCredit(targetId).then(data => {
+      setAnalysisData(data);
+      setLoading(false);
+    }).catch(err => {
+      console.error("Analysis Error:", err);
+      setLoading(false);
     });
   }, [sessionId]);
 

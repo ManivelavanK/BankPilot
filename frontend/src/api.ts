@@ -49,3 +49,11 @@ export async function getDashboardSummary() {
   }
   return response.json();
 }
+
+export async function getAnalysisHistory() {
+  const response = await fetch(`${API_BASE_URL}/history`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch analysis history');
+  }
+  return response.json();
+}

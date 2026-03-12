@@ -47,7 +47,7 @@ export function MainLayout() {
     { path: '/app', label: 'Dashboard', icon: LayoutDashboard, exact: true },
     { path: '/app/upload', label: 'Upload Documents', icon: Upload },
     { 
-      path: lastAnalysisId ? `/app/risk-intelligence/${lastAnalysisId}` : '/app/risk-intelligence', 
+      path: '/app/risk-intelligence', 
       label: 'AI Risk Intelligence', 
       icon: Brain 
     },

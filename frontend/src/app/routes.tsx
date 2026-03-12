@@ -36,7 +36,7 @@ export const router = createBrowserRouter(
       children: [
         { index: true, Component: Dashboard },
         { path: "upload", Component: DataUpload },
-        { path: "risk-intelligence", Component: AIRiskIntelligence },
+        { path: "risk-intelligence", Component: AIAnalysis },
         { path: "company-intelligence", Component: CompanyIntelligence },
         { path: "loan-simulator", Component: AILoanSimulator },
         { path: "portfolio-risk", Component: PortfolioRiskMonitor },

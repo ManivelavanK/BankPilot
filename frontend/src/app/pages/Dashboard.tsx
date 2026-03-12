@@ -21,7 +21,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { fadeInUp, staggerContainer, scaleIn } from '../components/MotionUtils';
-import { getDashboardSummary } from '../../api';
+import { getDashboardSummary, getAnalysisHistory } from '../../api';
 import EarlyWarningSignals from '../components/EarlyWarningSignals';
 
 const defaultStats = [
@@ -92,29 +92,37 @@ export function Dashboard() {
     { name: 'Medium Risk', value: 0, color: '#f59e0b' },
     { name: 'High Risk', value: 0, color: '#ef4444' },
   ]);
-  const [revenueTrend, setRevenueTrend] = useState<any[]>([]);
+  const [revenueTrend, setRevenueTrend] = useState<any[]>(revenueData);
   const [latestAnalysis, setLatestAnalysis] = useState<any>(null);
   const [docInsights, setDocInsights] = useState<any[]>([]);
+  const [analysisHistory, setAnalysisHistory] = useState<any[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(true);
+  const [recentAlerts, setRecentAlerts] = useState<any[]>([]);
 
-  useEffect(() => {
+  const fetchDashboardData = () => {
     getDashboardSummary().then(data => {
       setSummary(data);
-      // Map API stats to dashboard cards
-      const newStats = [...defaultStats];
+      // Deep-copy defaultStats to avoid mutating shared array reference
+      const newStats = defaultStats.map(s => ({ ...s }));
       newStats[0].value = data.total_applications.toString();
       newStats[1].value = data.approved_count.toString();
       newStats[2].value = data.risk_distribution.find((d: any) => d.name === 'High Risk')?.value.toString() || "0";
       newStats[3].value = data.review_count.toString();
       setStatsData(newStats);
-      
-      setApps(data.recent_activity);
-      setRevenueTrend(data.revenue_trend);
+
+      setApps(data.recent_activity || []);
+      if (data.revenue_trend && data.revenue_trend.length > 0) {
+        setRevenueTrend(data.revenue_trend);
+      }
       setLatestAnalysis(data.latest_analysis);
-      setDocInsights(data.document_insights);
-      if (data.latest_analysis) {
+      setDocInsights(data.document_insights || []);
+      if (data.latest_analysis?.score !== undefined) {
         setCreditScore(data.latest_analysis.score);
       }
-      
+      if (data.recent_alerts) {
+        setRecentAlerts(data.recent_alerts);
+      }
+
       // Calculate percentages for pie chart if total > 0
       if (data.total_applications > 0) {
         const dist = data.risk_distribution.map((d: any) => ({
@@ -124,6 +132,21 @@ export function Dashboard() {
         setRiskData(dist);
       }
     }).catch(console.error);
+
+    // Load analysis history
+    getAnalysisHistory()
+      .then(data => setAnalysisHistory(data.history || []))
+      .catch(console.error)
+      .finally(() => setHistoryLoading(false));
+  };
+
+  useEffect(() => {
+    // Initial load
+    fetchDashboardData();
+
+    // Auto-refresh every 30 seconds so newly processed documents appear without manual reload
+    const pollInterval = setInterval(fetchDashboardData, 30000);
+    return () => clearInterval(pollInterval);
   }, []);
 
   const sectorDist = apps.reduce((acc: any[], app: any) => {
@@ -146,11 +169,6 @@ export function Dashboard() {
       setTimeout(() => setCurrentAIStep(index), step.delay)
     );
     return () => timers.forEach(clearTimeout);
-  }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setCreditScore(76), 500);
-    return () => clearTimeout(timer);
   }, []);
 
   const getRiskBadgeColor = (risk: string) => {
@@ -560,7 +578,7 @@ export function Dashboard() {
               </div>
             </motion.div>
 
-            <EarlyWarningSignals />
+            <EarlyWarningSignals alerts={recentAlerts} fraudFlags={analysisHistory.flatMap((h: any) => h.fraud_flags || [])} />
           </div>
 
           {/* Advanced Fintech Components Row 1 */}
@@ -850,6 +868,193 @@ export function Dashboard() {
               </div>
             </div>
           </div>
+
+          {/* ── Analysis History ─────────────────────────────────── */}
+          <motion.div
+            variants={fadeInUp}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
+            className="bg-white/80 backdrop-blur-md rounded-[20px] shadow-[0_10px_40px_rgba(0,0,0,0.04)] border border-white/20 overflow-hidden mt-6"
+          >
+            <div className="p-6 border-b border-[#E2E8F0]/50 bg-gradient-to-r from-slate-50 to-white/50 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl shadow-lg">
+                  <Clock className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-[18px] font-bold text-[#1E293B] uppercase tracking-wider">Analysis History</h3>
+                  <p className="text-[10px] text-[#64748B] font-semibold uppercase tracking-widest">
+                    {analysisHistory.length} completed {analysisHistory.length === 1 ? 'analysis' : 'analyses'} · auto-saved
+                  </p>
+                </div>
+              </div>
+              <Link
+                to="/app/upload"
+                className="text-xs text-[#2563EB] hover:text-[#1e40af] font-bold flex items-center gap-2 group uppercase tracking-widest px-4 py-2 bg-blue-50 rounded-full transition-all hover:bg-blue-100"
+              >
+                New Analysis
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+
+            {historyLoading ? (
+              <div className="flex items-center justify-center py-16 gap-3 text-[#64748B]">
+                <div className="w-6 h-6 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin" />
+                <span className="text-sm font-semibold uppercase tracking-widest">Loading history...</span>
+              </div>
+            ) : analysisHistory.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 gap-4 text-center px-8">
+                <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center">
+                  <Brain className="w-8 h-8 text-slate-400" />
+                </div>
+                <div>
+                  <p className="font-bold text-[#1E293B] text-lg">No analyses yet</p>
+                  <p className="text-sm text-[#64748B] mt-1">Upload documents and run an analysis — results will appear here automatically.</p>
+                </div>
+                <Link
+                  to="/app/upload"
+                  className="px-6 py-3 bg-gradient-to-r from-[#2563EB] to-[#06B6D4] text-white rounded-xl font-bold text-sm shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center gap-2"
+                >
+                  <ArrowRight className="w-4 h-4" />
+                  Start First Analysis
+                </Link>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-[#F8FAFC]/70">
+                    <tr>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-[#64748B] uppercase tracking-widest">Analysis ID</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-[#64748B] uppercase tracking-widest">Company</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-[#64748B] uppercase tracking-widest">Risk Score</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-[#64748B] uppercase tracking-widest">Decision</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-[#64748B] uppercase tracking-widest">Fraud Flags</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-[#64748B] uppercase tracking-widest">Date / Time</th>
+                      <th className="px-6 py-4 text-left text-[10px] font-bold text-[#64748B] uppercase tracking-widest">View</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#E2E8F0]/50">
+                    {analysisHistory.map((record: any, idx: number) => {
+                      const score = record.risk_score ?? 0;
+                      const scoreColor =
+                        score >= 70 ? 'text-red-600 bg-red-50 border-red-200'
+                        : score >= 40 ? 'text-amber-600 bg-amber-50 border-amber-200'
+                        : 'text-emerald-600 bg-emerald-50 border-emerald-200';
+                      const decisionColor =
+                        record.loan_decision === 'APPROVED'
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : record.loan_decision === 'REJECTED'
+                          ? 'bg-red-100 text-red-700'
+                          : 'bg-amber-100 text-amber-700';
+                      const decisionIcon =
+                        record.loan_decision === 'APPROVED' ? '✓'
+                        : record.loan_decision === 'REJECTED' ? '✗'
+                        : '⚠';
+                      const dt = record.timestamp ? new Date(record.timestamp) : null;
+                      const dateStr = dt
+                        ? dt.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+                        : 'N/A';
+                      const timeStr = dt
+                        ? dt.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })
+                        : '';
+
+                      return (
+                        <motion.tr
+                          key={record.analysis_id || idx}
+                          initial={{ opacity: 0, x: -10 }}
+                          whileInView={{ opacity: 1, x: 0 }}
+                          transition={{ delay: idx * 0.05 }}
+                          className="hover:bg-blue-50/30 transition-colors group cursor-pointer"
+                        >
+                          {/* Analysis ID */}
+                          <td className="px-6 py-5">
+                            <span className="text-[10px] font-black text-[#64748B] uppercase tracking-widest bg-slate-100 px-2 py-1 rounded-lg">
+                              {record.analysis_id || 'N/A'}
+                            </span>
+                          </td>
+
+                          {/* Company */}
+                          <td className="px-6 py-5">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-gradient-to-br from-[#2563EB] to-[#06B6D4] rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+                                <Building2 className="w-5 h-5 text-white" />
+                              </div>
+                              <div>
+                                <p className="font-bold text-[#1E293B] text-sm leading-tight">{record.company_name || 'Unknown'}</p>
+                                <p className="text-[10px] text-[#64748B] font-semibold uppercase tracking-widest mt-0.5">
+                                  {record.loan_amount ? `₹${record.loan_amount} Cr requested` : 'Amount N/A'}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+
+                          {/* Risk Score */}
+                          <td className="px-6 py-5">
+                            <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border font-black text-sm ${scoreColor}`}>
+                              <BarChart3 className="w-4 h-4" />
+                              {score}
+                              <span className="text-[9px] font-bold opacity-60">/100</span>
+                            </div>
+                          </td>
+
+                          {/* Decision */}
+                          <td className="px-6 py-5">
+                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${decisionColor}`}>
+                              {decisionIcon} {record.loan_decision || 'REVIEW'}
+                            </span>
+                          </td>
+
+                          {/* Fraud Flags */}
+                          <td className="px-6 py-5">
+                            {Array.isArray(record.fraud_flags) && record.fraud_flags.length > 0 ? (
+                              <div className="flex flex-wrap gap-1">
+                                {record.fraud_flags.slice(0, 2).map((flag: string, fi: number) => (
+                                  <span key={fi} className="px-2 py-0.5 bg-red-50 text-red-600 border border-red-200 rounded text-[9px] font-bold uppercase tracking-wider flex items-center gap-1">
+                                    <AlertTriangle className="w-2.5 h-2.5" />
+                                    {flag.length > 20 ? flag.slice(0, 20) + '…' : flag}
+                                  </span>
+                                ))}
+                                {record.fraud_flags.length > 2 && (
+                                  <span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded text-[9px] font-bold">
+                                    +{record.fraud_flags.length - 2}
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-[10px] font-bold text-emerald-600 flex items-center gap-1">
+                                <CheckCircle className="w-3.5 h-3.5" /> None
+                              </span>
+                            )}
+                          </td>
+
+                          {/* Date/Time */}
+                          <td className="px-6 py-5">
+                            <div>
+                              <p className="text-sm font-bold text-[#1E293B]">{dateStr}</p>
+                              <p className="text-[10px] text-[#64748B] font-semibold">{timeStr}</p>
+                            </div>
+                          </td>
+
+                          {/* View Button */}
+                          <td className="px-6 py-5">
+                            <Link
+                              to={`/app/risk-intelligence/${record.session_id}`}
+                              className="p-2 bg-slate-100 rounded-lg text-[#2563EB] hover:bg-blue-600 hover:text-white transition-all flex items-center justify-center w-max shadow-sm"
+                            >
+                              <ArrowRight className="w-4 h-4" />
+                            </Link>
+                          </td>
+                        </motion.tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </motion.div>
+          {/* ── /Analysis History ──────────────────────────────────── */}
+
         </div>
       </div>
     </div>
