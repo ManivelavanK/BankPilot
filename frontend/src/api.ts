@@ -1,4 +1,6 @@
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:5000' 
+  : 'https://bankpilot-backend-2.onrender.com';
 
 export async function uploadDocuments(formData: FormData) {
   // Extract fields if they are explicitly passed, otherwise assume they are already in formData
