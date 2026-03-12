@@ -1,4 +1,5 @@
-import { Settings, CheckCircle, XCircle, AlertTriangle, Shield } from "lucide-react";
+import { Settings, CheckCircle, XCircle, AlertTriangle, Shield, Menu } from "lucide-react";
+import { useOutletContext } from "react-router";
 
 const policyRules = [
   {
@@ -81,18 +82,28 @@ const complianceSummary = {
 };
 
 export function CreditPolicyEngine() {
+  const { setSidebarOpen } = useOutletContext<{ setSidebarOpen: (open: boolean) => void }>();
   const compliancePercentage = Math.round((complianceSummary.passed / complianceSummary.totalRules) * 100);
 
   return (
-    <div className="p-6 md:p-8 bg-gray-100 min-h-screen">
-      {/* Header */}
-      <div className="mb-8">
+    <div className="bg-gray-100 min-h-screen pb-8">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-50 bg-gray-100/80 backdrop-blur-md -mx-4 px-4 py-4 sm:-mx-8 sm:px-8 sm:py-6 mb-6 sm:mb-8 border-b border-gray-200">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-12 h-12 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
             <Settings className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Credit Policy Engine</h1>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-1.5 hover:bg-white rounded-lg transition-colors border border-slate-200"
+                aria-label="Toggle Sidebar"
+              >
+                <Menu className="w-5 h-5 text-slate-600" />
+              </button>
+              <h1 className="text-3xl font-bold text-gray-900">Credit Policy Engine</h1>
+            </div>
             <p className="text-gray-600">Automated credit policy compliance verification</p>
           </div>
         </div>

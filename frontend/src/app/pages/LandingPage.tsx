@@ -68,7 +68,12 @@ const stats = [
 export function LandingPage() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [activeSection, setActiveSection] = useState('');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const dashboardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!dashboardRef.current) return;
@@ -104,6 +109,26 @@ export function LandingPage() {
     return () => observer.disconnect();
   }, []);
 
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    setIsMenuOpen(false);
+    
+    // Using a delay for mobile to ensure the menu state change doesn't interrupt the scroll
+    setTimeout(() => {
+      const element = document.getElementById(id);
+      if (element) {
+        const headerOffset = 80;
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+        window.scrollTo({
+          top: id === 'home' ? 0 : offsetPosition,
+          behavior: "smooth"
+        });
+      }
+    }, 50);
+  };
+
   const navItems = [
     { name: 'Home', id: 'home' },
     { name: 'Product', id: 'product' },
@@ -118,24 +143,25 @@ export function LandingPage() {
 
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 border-b border-slate-200/50 bg-white/60 backdrop-blur-xl transition-all">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-3 group cursor-pointer"
+            className="flex items-center gap-2 sm:gap-3 group cursor-pointer"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           >
-            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden group-hover:scale-110 transition-transform">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-xl flex items-center justify-center shadow-lg overflow-hidden group-hover:scale-110 transition-transform flex-shrink-0">
               <img src="/bankpilot-logo.jpg" alt="BankPilot Logo" className="w-full h-full object-cover" />
             </div>
-            <span className="text-xl font-black tracking-tighter uppercase italic font-heading text-[#0B3D5B]">BankPilot</span>
+            <span className="text-lg sm:text-xl font-black tracking-tighter uppercase italic font-heading text-[#0B3D5B]">BankPilot</span>
           </motion.div>
 
-          <div className="hidden md:flex items-center gap-8 text-[11px] font-black uppercase tracking-widest text-slate-500">
+          <div className="hidden md:flex items-center gap-6 lg:gap-8 text-[11px] font-black uppercase tracking-widest text-slate-500">
             {navItems.map(item => (
               <a
                 key={item.id}
                 href={`#${item.id}`}
+                onClick={(e) => handleNavClick(e, item.id)}
                 className={`nav-link transition-all duration-300 hover:text-[#1E88E5] relative py-2 ${activeSection === item.id ? 'text-[#1E88E5] font-black' : ''
                   }`}
               >
@@ -150,19 +176,62 @@ export function LandingPage() {
             ))}
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-          >
-            <Link
-              to="/login"
-              className="px-6 py-2.5 bg-[#0B3D5B] text-white rounded-full font-bold text-xs uppercase tracking-widest hover:bg-[#1E88E5] transition-all shadow-md active:scale-95"
+          <div className="flex items-center gap-3 sm:gap-4">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="hidden sm:block"
             >
-              Portal Login
-            </Link>
-          </motion.div>
+              <Link
+                to="/login"
+                className="px-5 sm:px-6 py-2 sm:py-2.5 bg-[#0B3D5B] text-white rounded-full font-bold text-[10px] sm:text-xs uppercase tracking-widest hover:bg-[#1E88E5] transition-all shadow-md active:scale-95"
+              >
+                Portal Login
+              </Link>
+            </motion.div>
+            
+            {/* Mobile Menu Toggle */}
+            <button 
+              className="md:hidden p-2 text-[#0B3D5B]"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              <Workflow className={`w-6 h-6 transition-transform ${isMenuOpen ? 'rotate-90' : ''}`} />
+            </button>
+          </div>
         </div>
+        
+        {/* Mobile Menu Dropdown */}
+        <AnimatePresence>
+          {isMenuOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="md:hidden bg-white border-b border-slate-200 overflow-hidden"
+            >
+              <div className="flex flex-col p-4 gap-4">
+                {navItems.map(item => (
+                  <a
+                    key={item.id}
+                    href={`#${item.id}`}
+                    onClick={(e) => handleNavClick(e, item.id)}
+                    className="text-xs font-black uppercase tracking-widest text-slate-500 hover:text-[#1E88E5] py-2 w-full block transition-colors"
+                  >
+                    {item.name}
+                  </a>
+                ))}
+                <Link
+                  to="/login"
+                  className="w-full text-center py-3 bg-[#0B3D5B] text-white rounded-xl font-bold text-xs uppercase tracking-widest"
+                >
+                  Portal Login
+                </Link>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
+
 
       {/* Hero Section */}
       <section id="home" className="relative pt-10 pb-24 px-6 overflow-hidden min-h-[85vh] flex items-center">

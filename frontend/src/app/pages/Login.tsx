@@ -29,6 +29,10 @@ export function Login() {
   };
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     if (isFlipping) {
       const interval = setInterval(() => {
         setAuthStep((prev) => {
@@ -52,12 +56,12 @@ export function Login() {
   }, [isLoggedIn, navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-cyan-100 flex items-center justify-center p-4 overflow-hidden relative">
+    <div className="min-h-screen bg-gradient-to-br from-slate-100 via-blue-50 to-cyan-100 flex flex-col items-center justify-center p-6 sm:p-4 overflow-x-hidden overflow-y-auto relative">
       {/* Back to Home Button */}
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        className="absolute top-8 left-8 z-50"
+        className="sm:absolute sm:top-8 sm:left-8 z-50 mb-8 sm:mb-0 self-start sm:self-auto"
       >
         <Link
           to="/"
@@ -173,7 +177,7 @@ export function Login() {
               transition: { duration: 1.5, ease: "easeInOut" }
             }}
             style={{ perspective: 2000 }}
-            className="w-full max-w-lg z-10"
+            className="w-full max-w-lg z-10 my-10 sm:my-0"
           >
             <motion.div
               variants={{
@@ -192,48 +196,48 @@ export function Login() {
               initial="initial"
               animate={isFlipping ? "flip" : "float"}
               style={{ transformStyle: "preserve-3d" }}
-              className="relative w-full aspect-[1.6/1]"
+              className="relative w-full min-h-[400px] sm:aspect-[1.6/1]"
             >
               {/* Card Front */}
               <div
-                className="absolute inset-0 w-full h-full bg-gradient-to-br from-[#0B3D5B] via-[#0A4A6A] to-[#087EA4] bg-opacity-80 rounded-[2rem] shadow-2xl p-8 border border-white/10 backdrop-blur-xl flex flex-col justify-between"
+                className="absolute inset-0 w-full h-full bg-gradient-to-br from-[#0B3D5B] via-[#0A4A6A] to-[#087EA4] bg-opacity-80 rounded-[2rem] shadow-2xl p-6 sm:p-8 border border-white/10 backdrop-blur-xl flex flex-col justify-between"
                 style={{ backfaceVisibility: "hidden" }}
               >
-                <div className="flex justify-between items-start">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center overflow-hidden border border-white/30 shadow-xl">
+                <div className="flex justify-between items-start gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white rounded-2xl flex items-center justify-center overflow-hidden border border-white/30 shadow-xl flex-shrink-0">
                       <img src="/bankpilot-logo.jpg" alt="BankPilot Logo" className="w-full h-full object-cover" />
                     </div>
                     <div>
-                      <h1 className="text-3xl font-bold text-white tracking-tight font-heading">BankPilot</h1>
-                      <p className="text-white/70 text-xs font-bold uppercase tracking-[0.2em]">Corporate Credit Intelligence</p>
+                      <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight font-heading">BankPilot</h1>
+                      <p className="text-white/70 text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em]">Credit Intelligence</p>
                     </div>
                   </div>
-                  <div className="w-12 h-12 bg-white/10 rounded-full border border-white/20 flex items-center justify-center">
-                    <Sparkles className="w-6 h-6 text-white/40" />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/10 rounded-full border border-white/20 flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white/40" />
                   </div>
                 </div>
 
-                <form onSubmit={handleLogin} className="space-y-6 mt-4">
-                  <div className="space-y-4">
+                <form onSubmit={handleLogin} className="space-y-4 sm:space-y-6 mt-6 sm:mt-4">
+                  <div className="space-y-3 sm:space-y-4">
                     <div className="relative group">
-                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-white transition-colors" />
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-white/40 group-focus-within:text-white transition-colors" />
                       <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/10 rounded-2xl text-white placeholder-white/40 focus:bg-white/20 focus:outline-none focus:border-white/30 transition-all font-medium"
+                        className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4 bg-white/10 border border-white/10 rounded-2xl text-white placeholder-white/40 focus:bg-white/20 focus:outline-none focus:border-white/30 transition-all font-medium text-sm"
                         placeholder="demo email : demo@gmail.com"
                         required
                       />
                     </div>
                     <div className="relative group">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40 group-focus-within:text-white transition-colors" />
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-white/40 group-focus-within:text-white transition-colors" />
                       <input
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full pl-12 pr-4 py-4 bg-white/10 border border-white/10 rounded-2xl text-white placeholder-white/40 focus:bg-white/20 focus:outline-none focus:border-white/30 transition-all font-medium"
+                        className="w-full pl-10 sm:pl-12 pr-4 py-3 sm:py-4 bg-white/10 border border-white/10 rounded-2xl text-white placeholder-white/40 focus:bg-white/20 focus:outline-none focus:border-white/30 transition-all font-medium text-sm"
                         placeholder="demo password : demo123"
                         required
                       />
@@ -244,11 +248,12 @@ export function Login() {
                     whileHover={{ scale: 1.02, backgroundColor: "rgba(255, 255, 255, 1)" }}
                     whileTap={{ scale: 0.98 }}
                     type="submit"
-                    className="w-full bg-white/90 text-[#0B3D5B] py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl transition-all font-heading"
+                    className="w-full bg-white/90 text-[#0B3D5B] py-3 sm:py-4 rounded-2xl font-black text-xs sm:text-sm uppercase tracking-widest shadow-xl transition-all font-heading"
                   >
                     Authenticate Access
                   </motion.button>
                 </form>
+
 
                 <div className="flex justify-between items-center opacity-40 mt-4">
                   <div className="flex gap-2">
@@ -261,7 +266,7 @@ export function Login() {
 
               {/* Card Back (AI Authentication) */}
               <div
-                className="absolute inset-0 w-full h-full bg-[#020617]/80 rounded-[2rem] shadow-[0_50px_100px_rgba(37,99,235,0.3)] p-10 border border-blue-500/30 backdrop-blur-2xl flex flex-col items-center justify-center gap-8 overflow-hidden"
+                className="absolute inset-0 w-full h-full bg-[#020617]/80 rounded-[2rem] shadow-[0_50px_100px_rgba(37,99,235,0.3)] p-6 sm:p-10 border border-blue-500/30 backdrop-blur-2xl flex flex-col items-center justify-center gap-6 sm:gap-8 overflow-hidden"
                 style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
               >
                 {/* Scanning Line */}
@@ -362,7 +367,7 @@ export function Login() {
         )}
       </AnimatePresence>
 
-      <p className="absolute bottom-10 text-center text-xs text-blue-500/40 font-bold uppercase tracking-widest z-10">
+      <p className="sm:absolute sm:bottom-10 text-center text-xs text-blue-500/40 font-bold uppercase tracking-widest z-10 mt-8 sm:mt-0">
         © 2026 BankPilot Intelligence Systems • All Nodes Secured
       </p>
     </div>

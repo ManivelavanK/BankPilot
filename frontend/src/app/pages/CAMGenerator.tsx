@@ -1,9 +1,10 @@
-import { Link, useParams, useNavigate } from "react-router";
-import { FileText, Download, Printer, Mail, CheckCircle, Building2, DollarSign, TrendingUp, Shield } from "lucide-react";
+import { Link, useParams, useNavigate, useOutletContext } from "react-router";
+import { FileText, Download, Printer, Mail, CheckCircle, Building2, DollarSign, TrendingUp, Shield, Menu } from "lucide-react";
 import FiveCsRadarChart from "../components/FiveCsRadarChart";
 import jsPDF from 'jspdf';
 
 export function CAMGenerator() {
+  const { setSidebarOpen } = useOutletContext<{ setSidebarOpen: (open: boolean) => void }>();
   const { applicationId } = useParams();
   const navigate = useNavigate();
 
@@ -357,30 +358,39 @@ export function CAMGenerator() {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 bg-transparent relative overflow-x-hidden">
+    <div className="bg-transparent relative pb-8">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-20">
         <div className="absolute top-20 right-20 w-64 h-64 bg-emerald-200 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 left-20 w-96 h-96 bg-blue-200 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-6 sm:mb-8">
+      <div className="relative z-10">
+        {/* Sticky Header Section */}
+        <div className="sticky top-0 z-50 bg-slate-50/80 backdrop-blur-md -mx-4 px-4 py-4 sm:-mx-8 sm:px-8 sm:py-6 mb-6 sm:mb-8 border-b border-slate-200">
           <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
             <Link to="/app" className="hover:text-emerald-600 transition-colors">Dashboard</Link>
             <span>/</span>
             <span className="text-gray-900">CAM Report</span>
           </div>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Credit Appraisal Memorandum</h1>
-              <p className="text-gray-600 text-sm sm:text-base">Auto-generated professional report ready for export</p>
+            <div className="flex-1">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  className="lg:hidden p-1.5 hover:bg-white rounded-lg transition-colors border border-slate-200"
+                  aria-label="Toggle Sidebar"
+                >
+                  <Menu className="w-5 h-5 text-slate-600" />
+                </button>
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Credit Appraisal Memorandum</h1>
+              </div>
+              <p className="text-gray-600 text-sm sm:text-base mt-1">Auto-generated professional report ready for export</p>
             </div>
             <div className="flex items-center gap-3 flex-wrap">
               <button
                 onClick={handlePrint}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+                className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm"
               >
                 <Printer className="w-4 h-4" />
                 Print
@@ -598,7 +608,7 @@ export function CAMGenerator() {
                 Five Cs of Credit Assessment
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                <div className="h-[350px]">
+              <div className="h-[250px] sm:h-[350px]">
                   <FiveCsRadarChart
                     scores={{
                       character: 85,

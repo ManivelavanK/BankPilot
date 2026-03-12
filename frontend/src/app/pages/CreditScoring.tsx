@@ -1,8 +1,9 @@
-import { Link, useParams } from "react-router";
-import { Shield, TrendingUp, DollarSign, Building2, BarChart3, ArrowRight } from "lucide-react";
+import { Link, useParams, useOutletContext } from "react-router";
+import { Shield, TrendingUp, DollarSign, Building2, BarChart3, ArrowRight, Menu } from "lucide-react";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from 'recharts';
 
 export function CreditScoring() {
+  const { setSidebarOpen } = useOutletContext<{ setSidebarOpen: (open: boolean) => void }>();
   const { applicationId } = useParams();
 
   const fiveCsData = [
@@ -92,9 +93,9 @@ export function CreditScoring() {
   const scoreColors = getScoreColor(overallScore);
 
   return (
-    <div className="p-8">
-      {/* Header */}
-      <div className="mb-8">
+    <div className="pb-8">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md -mx-4 px-4 py-4 sm:-mx-8 sm:px-8 sm:py-6 mb-6 sm:mb-8 border-b border-slate-200">
         <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
           <Link to="/app" className="hover:text-blue-600">Dashboard</Link>
           <span>/</span>
@@ -104,14 +105,23 @@ export function CreditScoring() {
           <span>/</span>
           <span className="text-gray-900">Credit Scoring</span>
         </div>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Credit Risk Scoring</h1>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-1.5 hover:bg-white rounded-lg transition-colors border border-slate-200"
+                aria-label="Toggle Sidebar"
+              >
+                <Menu className="w-5 h-5 text-slate-600" />
+              </button>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Credit Risk Scoring</h1>
+            </div>
             <p className="text-gray-600">TechVentures Pvt Ltd • Five Cs of Credit Analysis</p>
           </div>
           <Link
             to={`/app/recommendation/${applicationId}`}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2"
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2 whitespace-nowrap"
           >
             View Recommendation
             <ArrowRight className="w-5 h-5" />
