@@ -14,6 +14,14 @@ from utils import allowed_file
 app = Flask(__name__)
 CORS(app)
 
+@app.route('/', methods=['GET', 'HEAD'])
+def root():
+    return jsonify({
+        'status': 'active',
+        'message': 'BankPilot AI Service is running',
+        'timestamp': datetime.now().isoformat()
+    })
+
 # Configuration
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'pdf', 'csv', 'xlsx', 'xls', 'doc', 'docx'}

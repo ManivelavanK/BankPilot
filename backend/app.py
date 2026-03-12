@@ -41,6 +41,18 @@ def _append_history_entry(entry: dict):
 app = Flask(__name__)
 CORS(app)
 
+@app.route('/', methods=['GET', 'HEAD'])
+def root():
+    return jsonify({
+        'status': 'active',
+        'message': 'BankPilot AI Backend is running',
+        'timestamp': datetime.now().isoformat()
+    })
+
+@app.route('/health', methods=['GET', 'HEAD'])
+def health():
+    return jsonify({'status': 'healthy'})
+
 @app.errorhandler(Exception)
 def handle_exception(e):
     # Pass through HTTP errors
