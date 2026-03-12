@@ -1,5 +1,53 @@
 [
   {
+    "analysis_id": "AF1B55A",
+    "session_id": "6401f6a6-bbcb-4913-9aa9-739cc56ed9aa",
+    "company_name": "ABC Manufacturing Pvt Ltd",
+    "risk_score": 67,
+    "fraud_flags": [],
+    "loan_decision": "APPROVE",
+    "confidence": 0.93,
+    "loan_amount": 2.5,
+    "recommended_limit": "\u20b92.5 Cr",
+    "timestamp": "2026-03-12T19:30:49.134040"
+  },
+  {
+    "analysis_id": "AF095C5",
+    "session_id": "6401f6a6-bbcb-4913-9aa9-739cc56ed9aa",
+    "company_name": "ABC Manufacturing Pvt Ltd",
+    "risk_score": 67,
+    "fraud_flags": [],
+    "loan_decision": "REJECT",
+    "confidence": 0.93,
+    "loan_amount": 11.5,
+    "recommended_limit": "\u20b92.5 Cr",
+    "timestamp": "2026-03-12T19:30:48.211161"
+  },
+  {
+    "analysis_id": "A154B96",
+    "session_id": "6401f6a6-bbcb-4913-9aa9-739cc56ed9aa",
+    "company_name": "ABC Manufacturing Pvt Ltd",
+    "risk_score": 67,
+    "fraud_flags": [],
+    "loan_decision": "REJECT",
+    "confidence": 0.93,
+    "loan_amount": 8.5,
+    "recommended_limit": "\u20b92.5 Cr",
+    "timestamp": "2026-03-12T19:30:44.121386"
+  },
+  {
+    "analysis_id": "A7BA62C",
+    "session_id": "6401f6a6-bbcb-4913-9aa9-739cc56ed9aa",
+    "company_name": "ABC Manufacturing Pvt Ltd",
+    "risk_score": 67,
+    "fraud_flags": [],
+    "loan_decision": "REJECT",
+    "confidence": 0.93,
+    "loan_amount": 8.5,
+    "recommended_limit": "\u20b92.5 Cr",
+    "timestamp": "2026-03-12T19:30:44.086267"
+  },
+  {
     "analysis_id": "A6B38C1",
     "session_id": "68a7203e-ff0e-4ffb-92f4-08d9a7fa046a",
     "company_name": "TechCorp Pvt Ltd",

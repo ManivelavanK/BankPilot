@@ -1,0 +1,35 @@
+@import './fonts.css';
+@import './tailwind.css';
+@import './theme.css';
+
+html {
+    scroll-behavior: smooth;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-12px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+@keyframes scan {
+    0% {
+        transform: translateY(-100%);
+    }
+
+    100% {
+        transform: translateY(400%);
+    }
+}
+
+.animate-scan {
+    animation: scan 2s linear infinite;
+}
